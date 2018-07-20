@@ -1,0 +1,17 @@
+{
+  "name": "google-spreadsheet-crypto-manager",
+  "description": "Cryptocurrency manager for Google Spreadsheet",
+  "version": "0.1.0",
+  "author": "neolao <contact@neolao.com>",
+  "repository": "https://github.com/neolao/google-spreadsheet-crypto-manager.git",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^1.5.0"
+  },
+  "scripts": {
+    "clasp": "clasp",
+    "clasp-login": "clasp login --no-localhost",
+    "clasp-publish": "clasp push",
+    "clasp-publish-watch": "clasp push --watch"
+  }
+}
