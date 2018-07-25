@@ -124,6 +124,4 @@ var TradeSession_Dashboard = function(sheet, config) {
     }
     return count;
   };
-  
-  
 };

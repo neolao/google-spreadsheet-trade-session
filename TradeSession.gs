@@ -62,11 +62,11 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     dashboard.setHighestPrice(null);
     dashboard.setStartDate(null);
     dashboard.setEndDate(null);
-    sheet.getRange(config.stopLossOrderIdCell).setValues([[null]]);
-    sheet.getRange(config.takeProfitOrderId1Cell).setValues([[null]]);
-    sheet.getRange(config.takeProfitOrderId2Cell).setValues([[null]]);
-    sheet.getRange(config.takeProfitOrderId3Cell).setValues([[null]]);
-    sheet.getRange(config.trailingStopOrderIdCell).setValues([[null]]);
+    dashboard.setStopLossOrderId(null);
+    dashboard.setTakeProfitOrderId1(null);
+    dashboard.setTakeProfitOrderId2(null);
+    dashboard.setTakeProfitOrderId3(null);
+    dashboard.setTrailingStopOrderId(null);
     orders.clear();
     history.clear();
   }
@@ -153,8 +153,8 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     }
     
     // Check stop loss
-    var stopLossPercent = dashboard.getStopLossPercent();
-    if (stopLossPercent) {
+    if (dashboard.hasStopLoss()) {
+      var stopLossPercent = dashboard.getStopLossPercent();
       var stopLossPrice = buyPrice * (1 + stopLossPercent);
       if (currentPrice <= stopLossPrice) {
         this.cancel();
