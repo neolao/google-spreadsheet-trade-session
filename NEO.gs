@@ -15,7 +15,7 @@ function createNEOSession() {
       highestPriceCell: "N3",
       
       startDateCell: "R3",
-      endDateCell: "T3",
+      endDateCell: "U3",
       
       stopLossPercentCell: "B6",
       stopLossOrderIdCell: "C6",
@@ -56,4 +56,8 @@ function clearNEO() {
 
 function refreshNEO() {
   createNEOSession().refresh();
+}
+
+function cancelNEO() {
+  createNEOSession().cancel();
 }

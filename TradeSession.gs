@@ -11,6 +11,12 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     return date;
   };
   
+  var createEndDate = function() {
+    var date = new Date();
+    dashboard.setEndDate(date);
+    return date;
+  };
+  
   var buyAtMarket = function() {
     var startDate = createStartDate();
     var startDateString = (new TradeSession_DateFormatter(startDate)).formatLong();
@@ -97,7 +103,7 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
       dashboard.setTakeProfitOrderId3(sellOrder3.id);
       orders.add(sellOrder3);
     }
-  }
+  };
   
   this.cancel = function() {
     orders.cancelAll();
@@ -105,6 +111,35 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     var sellOrder = sellRemainingQuantityAtMarket();
     dashboard.setStopLossOrderId(sellOrder.id);
     orders.add(sellOrder);
+  }
+  
+  this.isFinished = function() {
+    if (dashboard.hasStopLoss()) {
+      var stopLossOrderId = dashboard.getStopLossOrderId();
+      if (orders.isFilled(stopLossOrderId)) {
+        return true;
+      }
+    }
+    
+    var expectedFilled = dashboard.getTakeProfitCount();
+    var filledCount = 0;
+    if (dashboard.hasTakeProfit1() && orders.isFilled(dashboard.getTakeProfitOrderId1())) {
+      filledCount++;
+    }
+    if (dashboard.hasTakeProfit2() && orders.isFilled(dashboard.getTakeProfitOrderId2())) {
+      filledCount++;
+    }
+    if (dashboard.hasTakeProfit3() && orders.isFilled(dashboard.getTakeProfitOrderId3())) {
+      filledCount++;
+    }
+    if (dashboard.hasTrailingStop() && orders.isFilled(dashboard.getTrailingStopOrderId())) {
+      filledCount++;
+    }
+    if (filledCount >= expectedFilled) {
+      return true;
+    }
+    
+    return false;
   }
   
   this.refresh = function() {
@@ -123,10 +158,16 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
       var stopLossPrice = buyPrice * (1 + stopLossPercent);
       if (currentPrice <= stopLossPrice) {
         this.cancel();
+        Utilities.sleep(1000);
       }
     }
     
     // Refresh orders
     orders.refresh();
+    
+    // Check end
+    if (this.isFinished()) {
+      createEndDate();
+    }
   }
 }

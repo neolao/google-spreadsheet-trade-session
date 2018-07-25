@@ -1,4 +1,4 @@
-var Binance_CommandHandler_CancelOrder = function() {
+var Binance_CommandHandler_CancelOrder = function(apiKey, apiSecret) {
   var api = new Binance_Service_ApiRequester(apiKey, apiSecret);
   
   this.handle = function(command) {

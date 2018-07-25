@@ -114,7 +114,7 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
     }
     
     return remainingQuantity;
-  };
+  }
   
   this.cancelAll = function() {
     var orders = getOrdersFromRange();
@@ -127,5 +127,23 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
       }
       orders[index] = order;
     }
-  };
+  }
+  
+  this.getById = function(orderId) {
+    var orders = getOrdersFromRange();
+    for (var index = 0; index < orders.length; index++) {
+      var order = orders[index];
+     
+      if (order.id == orderId) {
+        return order;
+      }
+    }
+    
+    throw new Error("Order not found: "+orderId);
+  }
+  
+  this.isFilled = function(orderId) {
+    var order = this.getById(orderId);
+    return order.status === Exchange_Order_Status_Filled;
+  }
 };
