@@ -1,1 +1,4 @@
-# google-spreadsheet-crypto-manager
+Trade session for Google Spreadsheet
+====================================
+
+Work In Progress
