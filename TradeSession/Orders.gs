@@ -2,6 +2,7 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
   var rowCount = range.getValues().length;
   var columnCount = range.getValues()[0].length;
   var emptyRow = [];
+  var self = this;
   for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
     emptyRow.push(null);
   }
@@ -139,11 +140,15 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
       }
     }
     
-    throw new Error("Order not found: "+orderId);
+    throw new Error('Order not found: "'+orderId+'"');
   }
   
   this.isFilled = function(orderId) {
-    var order = this.getById(orderId);
-    return order.status === Exchange_Order_Status_Filled;
+    try {
+      var order = self.getById(orderId);
+      return order.status === Exchange_Order_Status_Filled;
+    } catch (error) {
+      return false;
+    }
   }
 };

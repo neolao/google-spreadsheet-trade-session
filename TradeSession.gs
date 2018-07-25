@@ -4,6 +4,7 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
   var history = new TradeSession_History(historyRange);
   var ordersRange = sheet.getRange(config.ordersRange);
   var orders = new TradeSession_Orders(ordersRange, exchange, baseAsset, quoteAsset);
+  var self = this;
   
   var createStartDate = function() {
     var date = new Date();
@@ -146,9 +147,11 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     var buyPrice = dashboard.getBuyPrice();
     var currentPrice = dashboard.getCurrentPrice();
     var highestPrice = dashboard.getHighestPrice();
+    var isFinished = self.isFinished();
+    
     
     // Update highest price
-    if (currentPrice > highestPrice) {
+    if (!highestPrice || (currentPrice > highestPrice && !isFinished)) {
       dashboard.setHighestPrice(currentPrice);
     }
     
@@ -166,7 +169,7 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     orders.refresh();
     
     // Check end
-    if (this.isFinished()) {
+    if (isFinished && !dashboard.hasEndDate()) {
       createEndDate();
     }
   }
