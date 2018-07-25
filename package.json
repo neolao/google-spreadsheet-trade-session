@@ -1,9 +1,9 @@
 {
-  "name": "google-spreadsheet-crypto-manager",
-  "description": "Cryptocurrency manager for Google Spreadsheet",
+  "name": "google-spreadsheet-trade-session",
+  "description": "Trade session for Google Spreadsheet",
   "version": "0.1.0",
   "author": "neolao <contact@neolao.com>",
-  "repository": "https://github.com/neolao/google-spreadsheet-crypto-manager.git",
+  "repository": "https://github.com/neolao/google-spreadsheet-trade-session.git",
   "license": "MIT",
   "devDependencies": {
     "@google/clasp": "^1.5.0"

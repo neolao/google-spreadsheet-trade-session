@@ -98,7 +98,22 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
   };
   
   this.getRemainingQuoteQuantity = function() {
+    var orders = getOrdersFromRange();
+    var remainingQuantity = 0;
+    for (var index = 0; index < orders.length; index++) {
+      var order = orders[index];
+      if (order.status !== Exchange_Order_Status_Filled) {
+        continue;
+      }
+      
+      if (order.side === Exchange_Order_Side_Buy) {
+        remainingQuantity += order.quoteQuantity;
+      } else {
+        remainingQuantity -= order.quoteQuantity;
+      }
+    }
     
+    return remainingQuantity;
   };
   
   this.cancelAll = function() {

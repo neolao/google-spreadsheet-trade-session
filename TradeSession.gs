@@ -18,7 +18,7 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     
     history.push("Start buying " + quoteQuantity + " " + quoteAsset + " ...");
     try {
-      var order = exchange.executeCommand(new Exchange_Command_BuyAtMarketByQuoteAssetQuantity(baseAsset, quoteAsset, quoteQuantity));
+      var order = exchange.executeCommand(new Exchange_Command_BuyAtMarketByQuoteQuantity(baseAsset, quoteAsset, quoteQuantity));
       dashboard.setBuyPrice(order.price);
       history.push("Buy order executed: "+order.id+", price "+order.price+", baseQuantity "+order.baseQuantity);
       return order;
@@ -39,6 +39,16 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
   };
   var sellRemainingQuantityAtMarket = function() {
     var remainingQuoteQuantity = orders.getRemainingQuoteQuantity();
+    history.push("Sell remaining quote quantity: "+remainingQuoteQuantity);
+    
+    try {
+      var order = exchange.executeCommand(new Exchange_Command_SellAtMarketByQuoteQuantity(baseAsset, quoteAsset, remainingQuoteQuantity));
+      history.push("Sell order executed: "+order.id+", price "+order.price+", baseQuantity "+order.baseQuantity);
+      return order;
+    } catch (error) {
+      history.push("Fail to create sell order: " + error.message);
+      throw error;
+    }
   };
   
   this.clear = function() {

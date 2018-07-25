@@ -1,4 +1,4 @@
-var Binance_CommandHandler_BuyAtMarketByQuoteAssetQuantity = function(apiKey, apiSecret, fee) {
+var Binance_CommandHandler_BuyAtMarketByQuoteQuantity = function(apiKey, apiSecret, fee) {
   var symbolDefinitionFetcher = new Binance_Service_SymbolDefinitionFetcher();
   var priceFetcher = new Binance_Service_PriceFetcher();
   var quantityComputer = new Binance_Service_QuantityComputer();

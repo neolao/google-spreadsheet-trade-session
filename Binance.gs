@@ -4,8 +4,8 @@ var Binance = function(apiKey, apiSecret) {
   this.executeCommand = function(command) {
     var handler;
     
-    if (command instanceof Exchange_Command_BuyAtMarketByQuoteAssetQuantity) {
-      handler = new Binance_CommandHandler_BuyAtMarketByQuoteAssetQuantity(apiKey, apiSecret, fee);
+    if (command instanceof Exchange_Command_BuyAtMarketByQuoteQuantity) {
+      handler = new Binance_CommandHandler_BuyAtMarketByQuoteQuantity(apiKey, apiSecret, fee);
       return handler.handle(command);
     }
     
