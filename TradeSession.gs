@@ -1,10 +1,12 @@
-var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
-  var dashboard = new TradeSession_Dashboard(sheet, config);
-  var historyRange = sheet.getRange(config.historyRange);
-  var history = new TradeSession_History(historyRange);
-  var ordersRange = sheet.getRange(config.ordersRange);
-  var orders = new TradeSession_Orders(ordersRange, exchange, baseAsset, quoteAsset);
+var TradeSession = function(sheet) {
   var self = this;
+  var dashboard = new TradeSession_Dashboard(sheet);
+  var exchangeName = dashboard.getExchangeName();
+  var exchange = TradeSession_ExchangeBuilder.build(exchangeName);
+  var baseAsset = dashboard.getBaseAsset();
+  var quoteAsset = dashboard.getQuoteAsset();
+  var history = new TradeSession_History(dashboard.getHistoryRange());
+  var orders = new TradeSession_Orders(dashboard.getOrdersRange(), exchange, baseAsset, quoteAsset);
   
   var createStartDate = function() {
     var date = new Date();
@@ -73,6 +75,12 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
   }
   
   this.buy = function() {
+    var ui = SpreadsheetApp.getUi();
+    var response = ui.alert('BUY '+sheet.getName(), ui.ButtonSet.YES_NO);
+    if (response == ui.Button.YES) {
+      Logger.log('The user\'s name is %s.', response.getResponseText());
+    }
+    
     history.clear();
     var buyOrder = buyAtMarket();
     orders.add(buyOrder);
@@ -144,14 +152,19 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
   }
   
   this.refresh = function() {
+    // Update ticker
+    var currentPrice = exchange.executeQuery(new Exchange_Command_GetPrice(baseAsset, quoteAsset));
+    dashboard.setTicker(currentPrice);
+    
     var buyPrice = dashboard.getBuyPrice();
-    var currentPrice = dashboard.getCurrentPrice();
     var highestPrice = dashboard.getHighestPrice();
     var isFinished = self.isFinished();
-    
+    if (isFinished) {
+      return;
+    }
     
     // Update highest price
-    if (!highestPrice || (currentPrice > highestPrice && !isFinished)) {
+    if (!highestPrice || currentPrice > highestPrice) {
       dashboard.setHighestPrice(currentPrice);
     }
     
@@ -169,7 +182,7 @@ var TradeSession = function(exchange, baseAsset, quoteAsset, sheet, config) {
     orders.refresh();
     
     // Check end
-    if (isFinished && !dashboard.hasEndDate()) {
+    if (!dashboard.hasEndDate() && self.isFinished()) {
       createEndDate();
     }
   }

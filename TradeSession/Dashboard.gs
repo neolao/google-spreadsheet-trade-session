@@ -1,98 +1,162 @@
-var TradeSession_Dashboard = function(sheet, config) {
+var TradeSession_Dashboard = function(sheet) {
   var self = this;
+  var cells = {
+    exchangeName: 'C3',
+    baseAsset: 'C4',
+    quoteAsset: 'C5',
+    quoteQuantity: 'C6',
+    buyStrategy: 'C7',
+    buyPrice: 'C8',
+    stopLoss: 'C9',
+    takeProfit1: 'C10',
+    takeProfit2: 'C11',
+    takeProfit3: 'C12',
+    trailingStopTrigger: 'C13',
+    trailingStopThreshold: 'C14',
+    
+    startDate: 'E3',
+    endDate: 'G3',
+    
+    received: 'F6',
+    remaining: 'H6',
+    profit: 'J6',
+    
+    ticker: 'F8',
+    diffPrice: 'H8',
+    highestPrice: 'J8',
+    
+    stopLossOrderId: 'F9',
+    takeProfitOrderId1: 'F10',
+    takeProfitOrderId3: 'F11',
+    takeProfitOrderId2: 'F12',
+    trailingStopOrderId: 'F13',
+
+    ordersRange: 'B18:I26',
+    historyRange: 'B30:C51'
+  };
+  
   var denormalizePercent = function(normalizedValue) {
     if (normalizedValue == "None") {
       return null;
     }
     return normalizedValue;
   };
+  var getCellValue = function(cell) {
+    return sheet.getRange(cell).getValues()[0][0];
+  }
+  var setCellValue = function(cell, value) {
+    return sheet.getRange(cell).getValues([[value]]);
+  }
   
+  this.getExchangeName = function() {
+    return getCellValue(cells.exchangeName);
+  }
+  this.getBaseAsset = function() {
+    return getCellValue(cells.baseAsset);
+  }
+  this.getQuoteAsset = function() {
+    return getCellValue(cells.quoteAsset);
+  }
   this.getQuoteQuantity = function() {
-    return sheet.getRange(config.quoteQuantityCell).getValues()[0][0];
-  };
+    return getCellValue(cells.quoteQuantity);
+  }
   
+  this.getHistoryRange = function() {
+    return sheet.getRange(cells.historyRange);
+  }
+  this.getOrdersRange = function() {
+    return sheet.getRange(cells.ordersRange);
+  }
+  
+  
+  
+  this.getStartDate = function() {
+    return getCellValue(cells.startDate);
+  }
   this.setStartDate = function(date) {
-    sheet.getRange(config.startDateCell).setValues([[date]]);
+    setCellValue(cell.startDate, date);
   };
   
   this.getEndDate = function() {
-    return sheet.getRange(config.endDateCell).getValues()[0][0];
+    return getCellValue(cells.endDate);
   };
   this.setEndDate = function(date) {
-    sheet.getRange(config.endDateCell).setValues([[date]]);
+    setCellValue(cells.endDate, date);
   };
   
   this.getBuyPrice = function(price) {
-    return sheet.getRange(config.buyPriceCell).getValues()[0][0];
+    return getCellValue(cells.buyPrice);
   };
-  
   this.setBuyPrice = function(price) {
-    sheet.getRange(config.buyPriceCell).setValues([[price]]);
+    setCellValue(cells.buyPrice, price);
   };
   
-  this.getCurrentPrice = function() {
-    return sheet.getRange(config.currentPriceCell).getValues()[0][0];
+  this.getTicker = function() {
+    return getCellValue(cells.ticker);
+  };
+  this.setTicker = function(ticker) {
+    setCellValue(cells.ticker, ticker);
   };
   
   this.getHighestPrice = function() {
-    return sheet.getRange(config.highestPriceCell).getValues()[0][0];
+    return sheet.getRange(cells.highestPrice);
   };
-  
   this.setHighestPrice = function(price) {
-    sheet.getRange(config.highestPriceCell).setValues([[price]]);
+    setCellValue(cells.highestPrice, price);
   };
   
   this.getStopLossPercent = function() {
-    return denormalizePercent(sheet.getRange(config.stopLossPercentCell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cell.stopLoss));
   };
   this.getStopLossOrderId = function() {
-    return sheet.getRange(config.stopLossOrderIdCell).getValues()[0][0];
+    return getCellValue(cell.stopLossOrderId);
   };
   this.setStopLossOrderId = function(orderId) {
-    sheet.getRange(config.stopLossOrderIdCell).setValues([[orderId]]);
+    setCellValue(cells.stopLossOrderId, orderId);
   };
   
   this.getTakeProfitPercent1 = function() {
-    return denormalizePercent(sheet.getRange(config.takeProfitPercent1Cell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cells.takeProfit1));
   };
   this.getTakeProfitOrderId1 = function() {
-    return sheet.getRange(config.takeProfitOrderId1Cell).getValues()[0][0];
+    return getCellValue(cells.takeProfitOrderId1);
   };
   this.setTakeProfitOrderId1 = function(orderId) {
-    sheet.getRange(config.takeProfitOrderId1Cell).setValues([[orderId]]);
+    setCellValue(cells.takeProfitOrderId1, orderId);
   };
   
   this.getTakeProfitPercent2 = function() {
-    return denormalizePercent(sheet.getRange(config.takeProfitPercent2Cell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cells.takeProfit2));
   };
   this.getTakeProfitOrderId2 = function() {
-    return sheet.getRange(config.takeProfitOrderId2Cell).getValues()[0][0];
+    return getCellValue(cells.takeProfitOrderId2);
   };
   this.setTakeProfitOrderId2 = function(orderId) {
-    sheet.getRange(config.takeProfitOrderId2Cell).setValues([[orderId]]);
+    setCellValue(cells.takeProfitOrderId2, orderId);
   };
   
   this.getTakeProfitPercent3 = function() {
-    return denormalizePercent(sheet.getRange(config.takeProfitPercent3Cell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cells.takeProfit3));
   };
   this.getTakeProfitOrderId3 = function() {
-    return sheet.getRange(config.takeProfitOrderId3Cell).getValues()[0][0];
+    return getCellValue(cells.takeProfitOrderId3);
   };
   this.setTakeProfitOrderId3 = function(orderId) {
-    sheet.getRange(config.takeProfitOrderId3Cell).setValues([[orderId]]);
+    setCellValue(cells.takeProfitOrderId3, orderId);
   };
   
+  
   this.getTrailingStopTrigger = function() {
-    return denormalizePercent(sheet.getRange(config.trailingStopTriggerCell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cells.trailingStopTrigger));
   };
   this.getTrailingStopThreshold = function() {
-    return denormalizePercent(sheet.getRange(config.trailingStopThresholdCell).getValues()[0][0]);
+    return denormalizePercent(getCellValue(cells.trailingStopThreshold));
   };
   this.getTrailingStopOrderId = function() {
-    return sheet.getRange(config.trailingStopOrderIdCell).getValues()[0][0];
+    return getCellValue(cells.trailingStopOrderId);
   };
   this.setTrailingStopOrderId = function(orderId) {
-    sheet.getRange(config.trailingStopOrderIdCell).setValues([[orderId]]);
+    setCellValue(cells.trailingStopOrderId);
   };
   
   this.hasEndDate = function() {

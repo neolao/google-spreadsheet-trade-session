@@ -1,5 +1,8 @@
 function onOpen(e) {
   var ui = SpreadsheetApp.getUi();
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Add menu
   ui
     .createMenu('Trade sessions')
     .addItem('Refresh all sessions', 'refreshAll')
@@ -10,17 +13,34 @@ function onOpen(e) {
         .addItem('Display Binance API key', 'displayBinanceSettings')
     )
     .addToUi();
+    
+  // Install triggers
+  var triggers = ScriptApp.getUserTriggers(spreadsheet);
+  var hasTriggerRefreshAll = false;
+  for (var index = 0; index < triggers.length; index++) {
+    var handlerFunction = triggers[index].getHandlerFunction();
+    if (handlerFunction === 'refreshAll') {
+      hasTriggerRefreshAll = true;
+    }
+  }
+  if (!hasTriggerRefreshAll) {
+    ScriptApp.newTrigger('refreshAll')
+      .timeBased()
+      .everyMinutes(1)
+      .create();
+  }
+  
+  spreadsheet.toast('Initialized', 'Trade Session', 10);
+}
+
+function createCurrentSession() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var session = new TradeSession(sheet);
+  return session;
 }
 
 function buyCurrentSession() {
-    var sheet = SpreadsheetApp.getActiveSheet();
-    Logger.log("Active sheet: "+sheet.getName());
-    
-    var ui = SpreadsheetApp.getUi();
-    var response = ui.alert('BUY '+sheet.getName(), ui.ButtonSet.YES_NO);
-    if (response == ui.Button.YES) {
-      Logger.log('The user\'s name is %s.', response.getResponseText());
-    }
+    createCurrentSession().buy();
 }
 
 function refreshSheet(sheet) {

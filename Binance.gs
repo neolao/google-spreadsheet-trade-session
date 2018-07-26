@@ -37,6 +37,11 @@ var Binance = function(apiKey, apiSecret) {
       handler = new Binance_QueryHandler_GetOrder(apiKey, apiSecret);
       return handler.handle(query);
     }
+    
+    if (query instanceof Exchange_Query_GetPrice) {
+      handler = new Binance_QueryHandler_GetPrice();
+      return handler.handle(query);
+    }
   };
 }
 
