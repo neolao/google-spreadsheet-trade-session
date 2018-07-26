@@ -1,16 +1,21 @@
-function onOpen(e) {
+function newSession(sheet) {
+  return new TradeSession(sheet);
+}
+
+
+function onOpen() {
   var ui = SpreadsheetApp.getUi();
   
   // Add menu
   ui
     .createMenu('Trade sessions')
-    .addItem('Refresh all sessions', 'refreshAll')
+    .addItem('Refresh all sessions', 'TradeSession.refreshAll')
     .addSeparator()
     .addSubMenu(
       ui.createMenu('Settings')
-        .addItem('Install', 'install')
-        .addItem('Display Binance API key', 'displayBinanceSettings')
-        .addItem('Display Binance API key', 'displayBinanceSettings')
+        .addItem('Install scheduler', 'TradeSession.install')
+        .addItem('Update Binance API key', 'TradeSession.displayBinanceSettings')
+        .addItem('Display Binance API key', 'TradeSession.displayBinanceSettings')
     )
     .addToUi();
 }
