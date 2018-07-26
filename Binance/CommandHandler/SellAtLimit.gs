@@ -13,6 +13,10 @@ var Binance_CommandHandler_SellAtLimit = function(apiKey, apiSecret, fee) {
     try {
       return orderCreator.createSellLimit(symbol, sellQuantity, sellPrice);
     } catch (error) {
+      if (error.message === "Filter failure: PRICE_FILTER") {
+        throw new Error(error.message+" (code "+error.code+"), definition: "+JSON.stringify(definition)+", command price: "+command.price);
+      }
+      
       if (error.code === -2010 && error.message === 'Account has insufficient balance for requested action.') {
         sellQuantity = quantityComputer.decreaseBaseQuantityStep(definition, sellQuantity, 1);
         return orderCreator.createSellLimit(symbol, sellQuantity);

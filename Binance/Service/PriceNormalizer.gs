@@ -5,8 +5,8 @@ var Binance_Service_PriceNormalizer = function() {
   
   this.normalize = function(definition, price) {
     var minPrice = 0;
-    var maxPrice = Infinity;
-    var tickSize = 0.00000010;
+    var maxPrice = null;
+    var tickSize = null;
     
     if (Array.isArray(definition.filters)) {
       for (var index = 0; index < definition.filters.length; index++) {
@@ -18,12 +18,15 @@ var Binance_Service_PriceNormalizer = function() {
         }
       }
     }
+    
+    if (!tickSize) {
+      throw new Error("Undefined tickSize in definition: "+JSON.stringify());
+    }
 
-    var normalized = Number(price);
+    var normalized = floorByPrecision(Number(price), definition.quotePrecision);;
     var extra = normalized % tickSize;
     normalized = normalized - extra;
 
-    normalized = floorByPrecision(normalized, definition.quotePrecision);
     return normalized;
   }
 };
