@@ -1,6 +1,5 @@
 function onOpen(e) {
   var ui = SpreadsheetApp.getUi();
-  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   
   // Add menu
   ui
@@ -9,11 +8,17 @@ function onOpen(e) {
     .addSeparator()
     .addSubMenu(
       ui.createMenu('Settings')
-        .addItem('Update Binance API key', 'updateBinanceSettings')
+        .addItem('Install', 'install')
+        .addItem('Display Binance API key', 'displayBinanceSettings')
         .addItem('Display Binance API key', 'displayBinanceSettings')
     )
     .addToUi();
-    
+}
+
+function install() {
+  var ui = SpreadsheetApp.getUi();
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
   // Install triggers
   var triggers = ScriptApp.getUserTriggers(spreadsheet);
   var hasTriggerRefreshAll = false;
@@ -30,11 +35,14 @@ function onOpen(e) {
       .create();
   }
   
-  spreadsheet.toast('Initialized', 'Trade Session', 10);
+  spreadsheet.toast('Installed', 'Trade Session', 10);
 }
 
 function createCurrentSession() {
   var sheet = SpreadsheetApp.getActiveSheet();
+  return createSheetSession(sheet);
+}
+function createSheetSession(sheet) {
   var session = new TradeSession(sheet);
   return session;
 }
@@ -43,8 +51,25 @@ function buyCurrentSession() {
     createCurrentSession().buy();
 }
 
-function refreshSheet(sheet) {
-    Logger.log("Refresh: "+sheet.getName());
+function refreshCurrentSession() {
+    createCurrentSession().refresh();
+}
+function refreshSheetSession(sheet) {
+    createSheetSession(sheet).refresh();
+}
+
+function clearCurrentSession() {
+    createCurrentSession().clear();
+}
+function clearSheetSession(sheet) {
+    createSheetSession(sheet).clear();
+}
+
+function cancelCurrentSession() {
+    createCurrentSession().cancel();
+}
+function cancelSheetSession(sheet) {
+    createSheetSession(sheet).cancel();
 }
 
 function refreshAll() {
@@ -54,7 +79,7 @@ function refreshAll() {
         var sheet = sheets[index];
         var sheetName = sheet.getName();
         if (sheetName.search(/^.* Session$/) != -1) {
-            refreshSheet(sheet);
+            refreshSheetSession(sheet);
         }
     }
 }

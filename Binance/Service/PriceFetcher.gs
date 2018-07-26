@@ -5,14 +5,14 @@ var Binance_Service_PriceFetcher = function() {
   var getPrices = function() {
     var cached = cache.get("binance-prices");
     if (cached != null) {
-      return cached;
+      return JSON.parse(cached);
     }
 
     var response = UrlFetchApp.fetch(baseUrl + "/api/v3/ticker/price");
     var json = response.getContentText();
     var prices = JSON.parse(json);
     
-    cache.put("binance-prices", prices, 60); // cache for 1m
+    cache.put("binance-prices", json, 60); // cache for 1m
     return prices;
   }
 

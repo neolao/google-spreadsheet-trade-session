@@ -36,7 +36,7 @@ var TradeSession_Dashboard = function(sheet) {
   };
   
   var denormalizePercent = function(normalizedValue) {
-    if (normalizedValue == "None") {
+    if (normalizedValue == 'None') {
       return null;
     }
     return normalizedValue;
@@ -45,7 +45,7 @@ var TradeSession_Dashboard = function(sheet) {
     return sheet.getRange(cell).getValues()[0][0];
   }
   var setCellValue = function(cell, value) {
-    return sheet.getRange(cell).getValues([[value]]);
+    sheet.getRange(cell).setValues([[value]]);
   }
   
   this.getExchangeName = function() {
@@ -74,7 +74,7 @@ var TradeSession_Dashboard = function(sheet) {
     return getCellValue(cells.startDate);
   }
   this.setStartDate = function(date) {
-    setCellValue(cell.startDate, date);
+    setCellValue(cells.startDate, date);
   };
   
   this.getEndDate = function() {
@@ -106,10 +106,10 @@ var TradeSession_Dashboard = function(sheet) {
   };
   
   this.getStopLossPercent = function() {
-    return denormalizePercent(getCellValue(cell.stopLoss));
+    return denormalizePercent(getCellValue(cells.stopLoss));
   };
   this.getStopLossOrderId = function() {
-    return getCellValue(cell.stopLossOrderId);
+    return getCellValue(cells.stopLossOrderId);
   };
   this.setStopLossOrderId = function(orderId) {
     setCellValue(cells.stopLossOrderId, orderId);
@@ -156,9 +156,12 @@ var TradeSession_Dashboard = function(sheet) {
     return getCellValue(cells.trailingStopOrderId);
   };
   this.setTrailingStopOrderId = function(orderId) {
-    setCellValue(cells.trailingStopOrderId);
+    setCellValue(cells.trailingStopOrderId, orderId);
   };
   
+  this.hasStartDate = function() {
+    return Boolean(self.getStartDate());
+  }
   this.hasEndDate = function() {
     return Boolean(self.getEndDate());
   }

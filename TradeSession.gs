@@ -123,6 +123,10 @@ var TradeSession = function(sheet) {
   }
   
   this.isFinished = function() {
+    if (!dashboard.hasStartDate()) {
+      return true;
+    }
+    
     if (dashboard.hasStopLoss()) {
       var stopLossOrderId = dashboard.getStopLossOrderId();
       if (orders.isFilled(stopLossOrderId)) {
@@ -153,7 +157,7 @@ var TradeSession = function(sheet) {
   
   this.refresh = function() {
     // Update ticker
-    var currentPrice = exchange.executeQuery(new Exchange_Command_GetPrice(baseAsset, quoteAsset));
+    var currentPrice = exchange.executeQuery(new Exchange_Query_GetPrice(baseAsset, quoteAsset));
     dashboard.setTicker(currentPrice);
     
     var buyPrice = dashboard.getBuyPrice();
