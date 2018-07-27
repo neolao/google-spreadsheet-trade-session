@@ -28,15 +28,6 @@ function newSession(sheet) {
 }
 
 
-// To work in cloned mode
-var TradeSession = {
-  newSession: newSession,
-  installScheduler: installScheduler,
-  updateBinanceSettings: updateBinanceSettings,
-  displayBinanceSettings: displayBinanceSettings,
-  refreshAll: refreshAll,
-};
-
 function isTriggerRefreshAllInstalled() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   
