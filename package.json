@@ -12,6 +12,8 @@
     "clasp": "clasp",
     "clasp-login": "clasp login --no-localhost",
     "clasp-publish": "clasp push",
-    "clasp-publish-watch": "clasp push --watch"
+    "clasp-publish-watch": "clasp push --watch",
+    "clasp-create-version": "clasp version",
+    "clasp-publish-version": "clasp push && clasp version"
   }
 }

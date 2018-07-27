@@ -1,3 +1,6 @@
+var EVENT_STARTED = 'STARTED';
+var EVENT_ENDED = 'ENDED';
+
 function newSession(sheet) {
   return new TradeSession(sheet);
 }
@@ -6,41 +9,70 @@ function newSession(sheet) {
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   
+  // Sub menu "Settings"
+  var settings = ui.createMenu('Settings');
+  settings.addItem('Install scheduler', 'TradeSession.installScheduler');
+  settings.addSeparator();
+  settings.addItem('Update Binance API key', 'TradeSession.updateBinanceSettings');
+  settings.addItem('Display Binance API key', 'TradeSession.displayBinanceSettings');
+  
   // Add menu
   ui
     .createMenu('Trade sessions')
     .addItem('Refresh all sessions', 'TradeSession.refreshAll')
     .addSeparator()
-    .addSubMenu(
-      ui.createMenu('Settings')
-        .addItem('Install scheduler', 'TradeSession.install')
-        .addItem('Update Binance API key', 'TradeSession.displayBinanceSettings')
-        .addItem('Display Binance API key', 'TradeSession.displayBinanceSettings')
-    )
+    .addSubMenu(settings)
     .addToUi();
 }
 
-function install() {
-  var ui = SpreadsheetApp.getUi();
+function isTriggerRefreshAllInstalled() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   
-  // Install triggers
   var triggers = ScriptApp.getUserTriggers(spreadsheet);
-  var hasTriggerRefreshAll = false;
   for (var index = 0; index < triggers.length; index++) {
     var handlerFunction = triggers[index].getHandlerFunction();
     if (handlerFunction === 'refreshAll') {
-      hasTriggerRefreshAll = true;
+      return true;
     }
   }
-  if (!hasTriggerRefreshAll) {
+  
+  return false;
+}
+
+function installScheduler() {
+  var ui = SpreadsheetApp.getUi();
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
+  if (!isTriggerRefreshAllInstalled()) {
     ScriptApp.newTrigger('refreshAll')
       .timeBased()
       .everyMinutes(1)
       .create();
   }
   
-  spreadsheet.toast('Installed', 'Trade Session', 10);
+  ui.alert('The scheduler is installed', ui.ButtonSet.OK);
+  //spreadsheet.toast('Scheduler installed', 'Trade Session', 10);
+}
+
+function onSessionEnded(event) {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var logs = spreadsheet.getSheetByName('Session logs');
+  
+  var startDate = event.startDate;
+  var endDate = event.endDate;
+  var baseAsset = event.baseAsset;
+  var quoteAsset = event.quoteAsset;
+  var quoteSpent = event.quoteSpent;
+  var quoteReceived = event.quoteReceived;
+  logs.appendRow([
+    startDate,
+    endDate,
+    baseAsset,
+    quoteAsset,
+    quoteSpent,
+    quoteReceived,
+    quoteReceived / quoteSpent - 1
+  ]);
 }
 
 function createCurrentSession() {
@@ -48,7 +80,8 @@ function createCurrentSession() {
   return createSheetSession(sheet);
 }
 function createSheetSession(sheet) {
-  var session = new TradeSession(sheet);
+  var session = new TradeSession.newSession(sheet);
+  session.addEventListener(TradeSession.EVENT_ENDED, onSessionEnded);
   return session;
 }
 

@@ -14,6 +14,11 @@ var Binance = function(apiKey, apiSecret) {
       return handler.handle(command);
     }
     
+    if (command instanceof Exchange_Command_SellAtMarket) {
+      handler = new Binance_CommandHandler_SellAtMarket(apiKey, apiSecret, fee);
+      return handler.handle(command);
+    }
+    
     if (command instanceof Exchange_Command_SellAtLimit) {
       handler = new Binance_CommandHandler_SellAtLimit(apiKey, apiSecret, fee);
       return handler.handle(command);

@@ -9,12 +9,12 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
   
   var denormalizeOrder = function(normalizedOrder) {
     var id = normalizedOrder[0];
-    var side = normalizedOrder[2];
-    var type = normalizedOrder[4];
-    var price = normalizedOrder[8];
-    var baseQuantity = normalizedOrder[12];
-    var quoteQuantity = normalizedOrder[16];
-    var status = normalizedOrder[19];
+    var side = normalizedOrder[1];
+    var type = normalizedOrder[3];
+    var price = normalizedOrder[4];
+    var baseQuantity = normalizedOrder[5];
+    var quoteQuantity = normalizedOrder[6];
+    var status = normalizedOrder[7];
       
     return new Exchange_Order(
       id,
@@ -29,24 +29,12 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
   var normalizeOrder = function(order) {
     return [
       order.id,
-      null,
       order.side,
       null,
       order.type,
-      null,
-      null,
-      null,
       order.price,
-      null,
-      null,
-      null,
       order.baseQuantity,
-      null,
-      null,
-      null,
       order.quoteQuantity,
-      null,
-      null,
       order.status
     ];
   };
@@ -98,7 +86,41 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
     setOrdersToRange([]);
   };
   
-  this.getRemainingQuoteQuantity = function() {
+  this.getQuoteSent = function() {
+    var orders = getOrdersFromRange();
+    var spent = 0;
+    for (var index = 0; index < orders.length; index++) {
+      var order = orders[index];
+      if (order.status !== Exchange_Order_Status_Filled) {
+        continue;
+      }
+      
+      if (order.side === Exchange_Order_Side_Buy) {
+        spent += order.quoteQuantity;
+      }
+    }
+    
+    return spent;
+  };
+  
+  this.getQuoteReceived = function() {
+    var orders = getOrdersFromRange();
+    var received = 0;
+    for (var index = 0; index < orders.length; index++) {
+      var order = orders[index];
+      if (order.status !== Exchange_Order_Status_Filled) {
+        continue;
+      }
+      
+      if (order.side === Exchange_Order_Side_Sell) {
+        received += order.quoteQuantity;
+      }
+    }
+    
+    return received;
+  };
+  
+  this.getRemainingBaseQuantity = function() {
     var orders = getOrdersFromRange();
     var remainingQuantity = 0;
     for (var index = 0; index < orders.length; index++) {
@@ -108,9 +130,9 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
       }
       
       if (order.side === Exchange_Order_Side_Buy) {
-        remainingQuantity += order.quoteQuantity;
+        remainingQuantity += order.baseQuantity;
       } else {
-        remainingQuantity -= order.quoteQuantity;
+        remainingQuantity -= order.baseQuantity;
       }
     }
     

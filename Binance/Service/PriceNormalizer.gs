@@ -23,10 +23,13 @@ var Binance_Service_PriceNormalizer = function() {
       throw new Error("Undefined tickSize in definition: "+JSON.stringify());
     }
 
-    var normalized = floorByPrecision(Number(price), definition.quotePrecision);;
+    var normalized = floorByPrecision(Number(price), definition.quotePrecision);
     var extra = normalized % tickSize;
     normalized = normalized - extra;
 
+    // Bug fix Javascript precision
+    normalized = floorByPrecision(normalized, definition.quotePrecision);
+    
     return normalized;
   }
 };

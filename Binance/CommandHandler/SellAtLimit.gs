@@ -17,6 +17,10 @@ var Binance_CommandHandler_SellAtLimit = function(apiKey, apiSecret, fee) {
         throw new Error(error.message+" (code "+error.code+"), definition: "+JSON.stringify(definition)+", command price: "+command.price);
       }
       
+      if (error.message === "Precision is over the maximum defined for this asset") {
+        // {"symbol":"XRPUSDT","side":"SELL","type":"LIMIT","timeInForce":"GTC","quantity":"33.4","price":"0.44899000000000006","newOrderRespType":"FULL","timestamp":1532691483813}
+      }
+      
       if (error.code === -2010 && error.message === 'Account has insufficient balance for requested action.') {
         sellQuantity = quantityComputer.decreaseBaseQuantityStep(definition, sellQuantity, 1);
         return orderCreator.createSellLimit(symbol, sellQuantity);

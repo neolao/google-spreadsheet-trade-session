@@ -84,6 +84,16 @@ var TradeSession_Dashboard = function(sheet) {
     setCellValue(cells.endDate, date);
   };
   
+  this.setQuoteReceived = function(quantity) {
+    setCellValue(cells.received, quantity);
+  };
+  this.setRemainingBaseQuantity = function(quantity) {
+    setCellValue(cells.remaining, quantity);
+  };
+  this.setProfitQuantity = function(quantity) {
+    setCellValue(cells.profit, quantity);
+  };
+  
   this.getBuyPrice = function(price) {
     return getCellValue(cells.buyPrice);
   };

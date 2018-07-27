@@ -7,21 +7,42 @@ var TradeSession = function(sheet) {
   var quoteAsset = dashboard.getQuoteAsset();
   var history = new TradeSession_History(dashboard.getHistoryRange());
   var orders = new TradeSession_Orders(dashboard.getOrdersRange(), exchange, baseAsset, quoteAsset);
+  var eventListeners = [];
   
-  var createStartDate = function() {
+  var start = function() {
     var date = new Date();
     dashboard.setStartDate(date);
+    
+    dispatchEvent(EVENT_STARTED, {
+      date: date
+    });
+    
     return date;
   };
   
-  var createEndDate = function() {
+  var end = function() {
     var date = new Date();
+    var quoteSpent = orders.getQuoteSent();
+    var quoteReceived = orders.getQuoteReceived();
     dashboard.setEndDate(date);
+    dashboard.setQuoteReceived(quoteSpent);
+    dashboard.setRemainingBaseQuantity(quoteReceived);
+    dashboard.setProfitQuantity(quoteReceived - quoteSpent);
+    
+    dispatchEvent(EVENT_ENDED, {
+      startDate: dashboard.getStartDate(),
+      endDate: date,
+      baseAsset: baseAsset,
+      quoteAsset: quoteAsset,
+      quoteSpent: quoteSpent,
+      quoteReceived: quoteReceived
+    });
+    
     return date;
   };
   
   var buyAtMarket = function() {
-    var startDate = createStartDate();
+    var startDate = start();
     var startDateString = (new TradeSession_DateFormatter(startDate)).formatLong();
     var quoteQuantity = dashboard.getQuoteQuantity();
     
@@ -47,11 +68,11 @@ var TradeSession = function(sheet) {
     }
   };
   var sellRemainingQuantityAtMarket = function() {
-    var remainingQuoteQuantity = orders.getRemainingQuoteQuantity();
-    history.push("Sell remaining quote quantity: "+remainingQuoteQuantity);
+    var remaining = orders.getRemainingBaseQuantity();
+    history.push("Sell remaining base quantity: "+remaining);
     
     try {
-      var order = exchange.executeCommand(new Exchange_Command_SellAtMarketByQuoteQuantity(baseAsset, quoteAsset, remainingQuoteQuantity));
+      var order = exchange.executeCommand(new Exchange_Command_SellAtMarket(baseAsset, quoteAsset, remaining));
       history.push("Sell order executed: "+order.id+", price "+order.price+", baseQuantity "+order.baseQuantity);
       return order;
     } catch (error) {
@@ -59,6 +80,19 @@ var TradeSession = function(sheet) {
       throw error;
     }
   };
+  
+  
+  var dispatchEvent = function(type, event) {
+    for (var index = 0; index < eventListeners.length; index++) {
+      var listenerType = eventListeners[index].type;
+      if (listenerType === type) {
+        eventListeners[index].listener(event);
+      }
+    }
+  };
+  this.addEventListener = function(eventType, listener) {
+    eventListeners.push({type: eventType, listener: listener});
+  }
   
   this.clear = function() {
     dashboard.setBuyPrice(null);
@@ -70,15 +104,18 @@ var TradeSession = function(sheet) {
     dashboard.setTakeProfitOrderId2(null);
     dashboard.setTakeProfitOrderId3(null);
     dashboard.setTrailingStopOrderId(null);
+    dashboard.setQuoteReceived(null);
+    dashboard.setRemainingBaseQuantity(null);
+    dashboard.setProfitQuantity(null);
     orders.clear();
     history.clear();
   }
   
   this.buy = function() {
     var ui = SpreadsheetApp.getUi();
-    var response = ui.alert('BUY '+sheet.getName(), ui.ButtonSet.YES_NO);
-    if (response == ui.Button.YES) {
-      Logger.log('The user\'s name is %s.', response.getResponseText());
+    var response = ui.alert('BUY '+baseAsset+'/'+quoteAsset+'?', ui.ButtonSet.YES_NO);
+    if (response != ui.Button.YES) {
+      return;
     }
     
     history.clear();
@@ -118,8 +155,9 @@ var TradeSession = function(sheet) {
     orders.cancelAll();
     
     var sellOrder = sellRemainingQuantityAtMarket();
-    dashboard.setStopLossOrderId(sellOrder.id);
     orders.add(sellOrder);
+    
+    end();
   }
   
   this.isFinished = function() {
@@ -172,12 +210,21 @@ var TradeSession = function(sheet) {
       dashboard.setHighestPrice(currentPrice);
     }
     
+    // Update quote spent and remaining quote quantity
+    dashboard.setQuoteReceived(orders.getQuoteReceived());
+    dashboard.setRemainingBaseQuantity(orders.getRemainingBaseQuantity());
+    
     // Check stop loss
     if (dashboard.hasStopLoss()) {
       var stopLossPercent = dashboard.getStopLossPercent();
       var stopLossPrice = buyPrice * (1 + stopLossPercent);
       if (currentPrice <= stopLossPrice) {
-        this.cancel();
+        orders.cancelAll();
+    
+        var sellOrder = sellRemainingQuantityAtMarket();
+        dashboard.setStopLossOrderId(sellOrder.id);
+        orders.add(sellOrder);
+        
         Utilities.sleep(1000);
       }
     }
@@ -187,7 +234,7 @@ var TradeSession = function(sheet) {
     
     // Check end
     if (!dashboard.hasEndDate() && self.isFinished()) {
-      createEndDate();
+      end();
     }
   }
 }
