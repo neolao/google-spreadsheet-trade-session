@@ -1,11 +1,9 @@
 var EVENT_STARTED = 'STARTED';
 var EVENT_ENDED = 'ENDED';
 
-function newSession(sheet) {
-  return new TradeSession(sheet);
-}
-
-
+/**
+ * Executed when the Spreadsheet is open 
+ */
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   
@@ -24,6 +22,20 @@ function onOpen() {
     .addSubMenu(settings)
     .addToUi();
 }
+
+function newSession(sheet) {
+  return new TradeSession(sheet);
+}
+
+
+// To work in cloned mode
+var TradeSession = {
+  newSession: newSession,
+  installScheduler: installScheduler,
+  updateBinanceSettings: updateBinanceSettings,
+  displayBinanceSettings: displayBinanceSettings,
+  refreshAll: refreshAll,
+};
 
 function isTriggerRefreshAllInstalled() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
