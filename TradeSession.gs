@@ -206,7 +206,7 @@ var TradeSession = function(sheet) {
     }
     
     // Update highest price
-    if (!highestPrice || currentPrice > highestPrice) {
+    if (currentPrice > highestPrice) {
       dashboard.setHighestPrice(currentPrice);
     }
     

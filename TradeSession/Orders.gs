@@ -71,12 +71,16 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
   };
   
   this.refresh = function() {
-    var orders = getOrdersFromRange();
-    for (var index = 0; index < orders.length; index++) {
-      var order = orders[index];
+    var normalizedOrders = range.getValues();
+    var orders = [];
+    for (var index = 0; index < rowCount; index++) {
+      if (!normalizedOrders[index][0]) {
+        continue;
+      }
+      var orderId = normalizedOrders[index][0];
       
-      var refreshedOrder = exchange.executeQuery(new Exchange_Query_GetOrder(baseAsset, quoteAsset, order.id));
-      orders[index] = refreshedOrder;
+      var refreshedOrder = exchange.executeQuery(new Exchange_Query_GetOrder(baseAsset, quoteAsset, orderId));
+      orders.push(refreshedOrder);
     }
     
     setOrdersToRange(orders);

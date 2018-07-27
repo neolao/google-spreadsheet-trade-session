@@ -21,10 +21,10 @@ var Exchange_Order_Statuses = [
 
 var Exchange_Order = function(id, side, type, price, baseQuantity, quoteQuantity, status) {
   if (Exchange_Order_Sides.indexOf(side) === -1) {
-    throw new Error('Invalid order side: "'+side+'". Accepted values: '.JSON.stringify(Exchange_Order_Sides));
+    throw new Error('Invalid order side: "'+side+'". Accepted values: '+JSON.stringify(Exchange_Order_Sides));
   }
   if (Exchange_Order_Statuses.indexOf(status) === -1) {
-    throw new Error('Invalid order status: "'+status+'". Accepted values: '.JSON.stringify(Exchange_Order_Statuses));
+    throw new Error('Invalid order status: "'+status+'". Accepted values: '+JSON.stringify(Exchange_Order_Statuses));
   }
   
   this.id = id;

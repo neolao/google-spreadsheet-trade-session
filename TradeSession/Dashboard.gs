@@ -27,8 +27,8 @@ var TradeSession_Dashboard = function(sheet) {
     
     stopLossOrderId: 'F9',
     takeProfitOrderId1: 'F10',
-    takeProfitOrderId3: 'F11',
-    takeProfitOrderId2: 'F12',
+    takeProfitOrderId2: 'F11',
+    takeProfitOrderId3: 'F12',
     trailingStopOrderId: 'F13',
 
     ordersRange: 'B18:I26',

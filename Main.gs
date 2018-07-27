@@ -124,15 +124,3 @@ function refreshAll() {
         }
     }
 }
-
-
-// To work in cloned mode
-if (typeof TradeSession === "function") {
-  TradeSession.EVENT_STARTED = EVENT_STARTED;
-  TradeSession.EVENT_ENDED = EVENT_ENDED;
-  TradeSession.newSession = TradeSession;
-  TradeSession.installScheduler = installScheduler;
-  TradeSession.updateBinanceSettings = updateBinanceSettings;
-  TradeSession.displayBinanceSettings = displayBinanceSettings;
-  TradeSession.refreshAll = refreshAll;
-}
