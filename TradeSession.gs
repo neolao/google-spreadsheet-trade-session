@@ -237,13 +237,4 @@ var TradeSession = function(sheet) {
       end();
     }
   }
-  
-  // To work in cloned mode
-  this.EVENT_STARTED = EVENT_STARTED;
-  this.EVENT_ENDED = EVENT_ENDED;
-  this.newSession = arguments.callee;
-  this.installScheduler = installScheduler;
-  this.updateBinanceSettings = updateBinanceSettings;
-  this.displayBinanceSettings = displayBinanceSettings;
-  this.refreshAll = refreshAll;
 }
