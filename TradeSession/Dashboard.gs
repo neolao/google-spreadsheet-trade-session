@@ -60,6 +60,9 @@ var TradeSession_Dashboard = function(sheet) {
   this.getQuoteQuantity = function() {
     return getCellValue(cells.quoteQuantity);
   }
+  this.getBuyStrategy = function() {
+    return getCellValue(cells.buyStrategy);
+  }
   
   this.getHistoryRange = function() {
     return sheet.getRange(cells.historyRange);

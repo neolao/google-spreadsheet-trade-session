@@ -17,7 +17,8 @@ function onOpen() {
   // Add menu
   ui
     .createMenu('Trade sessions')
-    .addItem('Refresh all sessions', 'TradeSession.refreshAll')
+    .addItem('Refresh all sessions', 'refreshAll')
+    .addItem('Cancel all sessions', 'cancelAll')
     .addSeparator()
     .addSubMenu(settings)
     .addToUi();
@@ -121,6 +122,18 @@ function refreshAll() {
         var sheetName = sheet.getName();
         if (sheetName.search(/^.* Session$/) != -1) {
             refreshSheetSession(sheet);
+        }
+    }
+}
+
+function cancelAll() {
+    var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    var sheets = spreadsheet.getSheets();
+    for (var index = 0; index < sheets.length; index++) {
+        var sheet = sheets[index];
+        var sheetName = sheet.getName();
+        if (sheetName.search(/^.* Session$/) != -1) {
+            cancelSheetSession(sheet);
         }
     }
 }

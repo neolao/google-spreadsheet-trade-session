@@ -38,6 +38,8 @@ var TradeSession = function(sheet) {
       quoteReceived: quoteReceived
     });
     
+    history.push("Session finished");
+    
     return date;
   };
   
@@ -59,9 +61,7 @@ var TradeSession = function(sheet) {
   };
   var sellAtLimit = function(baseQuantity, price) {
     try {
-      var order = exchange.executeCommand(new Exchange_Command_SellAtLimit(baseAsset, quoteAsset, baseQuantity, price));
-      history.push("Sell order executed: "+order.id+", price "+order.price+", baseQuantity "+order.baseQuantity);
-      return order;
+      return exchange.executeCommand(new Exchange_Command_SellAtLimit(baseAsset, quoteAsset, baseQuantity, price));
     } catch (error) {
       history.push("Fail to create sell order: " + error.message);
       throw error;
@@ -96,7 +96,7 @@ var TradeSession = function(sheet) {
   
   this.clear = function() {
     dashboard.setBuyPrice(null);
-    dashboard.setHighestPrice(null);
+    dashboard.setHighestPrice(0);
     dashboard.setStartDate(null);
     dashboard.setEndDate(null);
     dashboard.setStopLossOrderId(null);
@@ -113,10 +113,21 @@ var TradeSession = function(sheet) {
   
   this.buy = function() {
     var ui = SpreadsheetApp.getUi();
-    var response = ui.alert('BUY '+baseAsset+'/'+quoteAsset+'?', ui.ButtonSet.YES_NO);
+    var buyStrategy = dashboard.getBuyStrategy();
+    var quoteQuantity = dashboard.getQuoteQuantity();
+    var warningMessage = 'Buy '+baseAsset+'/'+quoteAsset+' with '+quoteQuantity+' '+quoteAsset;
+    if (buyStrategy === 'Limit') {
+      var buyPrice = dashboard.getBuyPrice();
+      warningMessage += ' at '+buyPrice+' '+quoteAsset;
+    } else {
+      warningMessage += ' at market price';
+    }
+    warningMessage += '?';
+    var response = ui.alert(warningMessage, ui.ButtonSet.YES_NO);
     if (response != ui.Button.YES) {
       return;
     }
+    
     
     history.clear();
     var buyOrder = buyAtMarket();
@@ -132,6 +143,8 @@ var TradeSession = function(sheet) {
       var sellOrder1 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent1));
       dashboard.setTakeProfitOrderId1(sellOrder1.id);
       orders.add(sellOrder1);
+      
+      history.push("Sell order "+(takeProfitPercent1 * 100)+"% executed: "+sellOrder1.id+", price "+sellOrder1.price+", baseQuantity "+sellOrder1.baseQuantity);
     }
     
     // Create take profit order 2
@@ -140,6 +153,8 @@ var TradeSession = function(sheet) {
       var sellOrder2 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent2));
       dashboard.setTakeProfitOrderId2(sellOrder2.id);
       orders.add(sellOrder2);
+      
+      history.push("Sell order "+(takeProfitPercent2 * 100)+"% executed: "+sellOrder2.id+", price "+sellOrder2.price+", baseQuantity "+sellOrder2.baseQuantity);
     }
     
     // Create take profit order 3
@@ -148,6 +163,8 @@ var TradeSession = function(sheet) {
       var sellOrder3 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent3));
       dashboard.setTakeProfitOrderId3(sellOrder3.id);
       orders.add(sellOrder3);
+      
+      history.push("Sell order "+(takeProfitPercent3 * 100)+"% executed: "+sellOrder3.id+", price "+sellOrder3.price+", baseQuantity "+sellOrder3.baseQuantity);
     }
   };
   
@@ -162,6 +179,10 @@ var TradeSession = function(sheet) {
   
   this.isFinished = function() {
     if (!dashboard.hasStartDate()) {
+      return true;
+    }
+    
+    if (!dashboard.hasEndDate()) {
       return true;
     }
     
@@ -201,12 +222,9 @@ var TradeSession = function(sheet) {
     var buyPrice = dashboard.getBuyPrice();
     var highestPrice = dashboard.getHighestPrice();
     var isFinished = self.isFinished();
-    if (isFinished) {
-      return;
-    }
     
     // Update highest price
-    if (currentPrice > highestPrice) {
+    if (!isFinished && Number(currentPrice) > Number(highestPrice)) {
       dashboard.setHighestPrice(currentPrice);
     }
     
@@ -215,17 +233,17 @@ var TradeSession = function(sheet) {
     dashboard.setRemainingBaseQuantity(orders.getRemainingBaseQuantity());
     
     // Check stop loss
-    if (dashboard.hasStopLoss()) {
+    if (!isFinished && dashboard.hasStopLoss()) {
       var stopLossPercent = dashboard.getStopLossPercent();
       var stopLossPrice = buyPrice * (1 + stopLossPercent);
       if (currentPrice <= stopLossPrice) {
+        history.push("😱 STOP LOSS 😱 Current price "+currentPrice+" "+quoteAsset+", Limit "+stopLossPrice+" "+quoteAsset);
+        
         orders.cancelAll();
     
         var sellOrder = sellRemainingQuantityAtMarket();
         dashboard.setStopLossOrderId(sellOrder.id);
         orders.add(sellOrder);
-        
-        Utilities.sleep(1000);
       }
     }
     

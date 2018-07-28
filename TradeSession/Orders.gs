@@ -46,7 +46,11 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
       if (!normalizedOrders[index][0]) {
         continue;
       }
-      orders.push(denormalizeOrder(normalizedOrders[index]));
+      try {
+        orders.push(denormalizeOrder(normalizedOrders[index]));
+      } catch (error) {
+        // Unable to denormalize
+      }
     }
     return orders;
   };
