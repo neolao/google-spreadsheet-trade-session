@@ -13,18 +13,18 @@ var TradeSession_Dashboard = function(sheet) {
     takeProfit3: 'C12',
     trailingStopTrigger: 'C13',
     trailingStopThreshold: 'C14',
-    
+
     startDate: 'E3',
     endDate: 'G3',
-    
+
     received: 'F6',
     remaining: 'H6',
     profit: 'J6',
-    
+
     ticker: 'F8',
     diffPrice: 'H8',
     highestPrice: 'J8',
-    
+
     stopLossOrderId: 'F9',
     takeProfitOrderId1: 'F10',
     takeProfitOrderId2: 'F11',
@@ -34,7 +34,7 @@ var TradeSession_Dashboard = function(sheet) {
     ordersRange: 'B18:I26',
     historyRange: 'B30:C51'
   };
-  
+
   var denormalizePercent = function(normalizedValue) {
     if (normalizedValue == 'None') {
       return null;
@@ -47,7 +47,7 @@ var TradeSession_Dashboard = function(sheet) {
   var setCellValue = function(cell, value) {
     sheet.getRange(cell).setValues([[value]]);
   }
-  
+
   this.getExchangeName = function() {
     return getCellValue(cells.exchangeName);
   }
@@ -63,30 +63,30 @@ var TradeSession_Dashboard = function(sheet) {
   this.getBuyStrategy = function() {
     return getCellValue(cells.buyStrategy);
   }
-  
+
   this.getHistoryRange = function() {
     return sheet.getRange(cells.historyRange);
   }
   this.getOrdersRange = function() {
     return sheet.getRange(cells.ordersRange);
   }
-  
-  
-  
+
+
+
   this.getStartDate = function() {
     return getCellValue(cells.startDate);
   }
   this.setStartDate = function(date) {
     setCellValue(cells.startDate, date);
   };
-  
+
   this.getEndDate = function() {
     return getCellValue(cells.endDate);
   };
   this.setEndDate = function(date) {
     setCellValue(cells.endDate, date);
   };
-  
+
   this.setQuoteReceived = function(quantity) {
     setCellValue(cells.received, quantity);
   };
@@ -96,28 +96,28 @@ var TradeSession_Dashboard = function(sheet) {
   this.setProfitQuantity = function(quantity) {
     setCellValue(cells.profit, quantity);
   };
-  
+
   this.getBuyPrice = function(price) {
     return getCellValue(cells.buyPrice);
   };
   this.setBuyPrice = function(price) {
     setCellValue(cells.buyPrice, price);
   };
-  
+
   this.getTicker = function() {
     return getCellValue(cells.ticker);
   };
   this.setTicker = function(ticker) {
     setCellValue(cells.ticker, ticker);
   };
-  
+
   this.getHighestPrice = function() {
-    return sheet.getRange(cells.highestPrice);
+    return getCellValue(cells.highestPrice);
   };
   this.setHighestPrice = function(price) {
     setCellValue(cells.highestPrice, price);
   };
-  
+
   this.getStopLossPercent = function() {
     return denormalizePercent(getCellValue(cells.stopLoss));
   };
@@ -127,7 +127,7 @@ var TradeSession_Dashboard = function(sheet) {
   this.setStopLossOrderId = function(orderId) {
     setCellValue(cells.stopLossOrderId, orderId);
   };
-  
+
   this.getTakeProfitPercent1 = function() {
     return denormalizePercent(getCellValue(cells.takeProfit1));
   };
@@ -137,7 +137,7 @@ var TradeSession_Dashboard = function(sheet) {
   this.setTakeProfitOrderId1 = function(orderId) {
     setCellValue(cells.takeProfitOrderId1, orderId);
   };
-  
+
   this.getTakeProfitPercent2 = function() {
     return denormalizePercent(getCellValue(cells.takeProfit2));
   };
@@ -147,7 +147,7 @@ var TradeSession_Dashboard = function(sheet) {
   this.setTakeProfitOrderId2 = function(orderId) {
     setCellValue(cells.takeProfitOrderId2, orderId);
   };
-  
+
   this.getTakeProfitPercent3 = function() {
     return denormalizePercent(getCellValue(cells.takeProfit3));
   };
@@ -157,8 +157,8 @@ var TradeSession_Dashboard = function(sheet) {
   this.setTakeProfitOrderId3 = function(orderId) {
     setCellValue(cells.takeProfitOrderId3, orderId);
   };
-  
-  
+
+
   this.getTrailingStopTrigger = function() {
     return denormalizePercent(getCellValue(cells.trailingStopTrigger));
   };
@@ -171,7 +171,7 @@ var TradeSession_Dashboard = function(sheet) {
   this.setTrailingStopOrderId = function(orderId) {
     setCellValue(cells.trailingStopOrderId, orderId);
   };
-  
+
   this.hasStartDate = function() {
     return Boolean(self.getStartDate());
   }
@@ -193,7 +193,7 @@ var TradeSession_Dashboard = function(sheet) {
   this.hasTrailingStop = function() {
     return self.getTrailingStopTrigger() > 0;
   }
-  
+
   this.getTakeProfitCount = function() {
     var count = 0;
     if (self.hasTakeProfit1()) {
