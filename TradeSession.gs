@@ -107,6 +107,7 @@ var TradeSession = function(sheet) {
     dashboard.setQuoteReceived(null);
     dashboard.setRemainingBaseQuantity(null);
     dashboard.setProfitQuantity(null);
+    dashboard.setAverageSellPrice(null);
     orders.clear();
     history.clear();
   }
@@ -129,7 +130,7 @@ var TradeSession = function(sheet) {
     }
 
 
-    history.clear();
+    self.clear();
     var buyOrder = buyAtMarket();
     orders.add(buyOrder);
 
@@ -231,6 +232,7 @@ var TradeSession = function(sheet) {
     // Update quote spent and remaining quote quantity
     dashboard.setQuoteReceived(orders.getQuoteReceived());
     dashboard.setRemainingBaseQuantity(orders.getRemainingBaseQuantity());
+    dashboard.setAverageSellPrice(orders.getAverageSellPrice());
 
     // Check stop loss
     if (!isFinished && dashboard.hasStopLoss()) {
@@ -239,11 +241,18 @@ var TradeSession = function(sheet) {
       if (currentPrice <= stopLossPrice) {
         history.push("😱 STOP LOSS 😱 Current price "+currentPrice+" "+quoteAsset+", Limit "+stopLossPrice+" "+quoteAsset);
 
-        orders.cancelAll();
+        try {
+          orders.cancelAll();
 
-        var sellOrder = sellRemainingQuantityAtMarket();
-        dashboard.setStopLossOrderId(sellOrder.id);
-        orders.add(sellOrder);
+          var sellOrder = sellRemainingQuantityAtMarket();
+          dashboard.setStopLossOrderId(sellOrder.id);
+          orders.add(sellOrder);
+        } catch (error) {
+          end();
+
+          history.push("ERROR "+error.message);
+          throw error;
+        }
       }
     }
 
@@ -251,15 +260,23 @@ var TradeSession = function(sheet) {
     if (!isFinished && dashboard.hasTrailingStop()) {
       var trailingStopTrigger = dashboard.getTrailingStopTrigger();
       var trailingStopThreshold = dashboard.getTrailingStopThreshold();
-      var stopPrice = highestPrice * (1 + trailingStopThreshold);
-      if (highestPrice <= stopPrice) {
-        history.push("TRAILING STOP! Current price "+currentPrice+" "+quoteAsset+", Limit "+stopPrice+" "+quoteAsset);
+      var triggerPrice = buyPrice * (1 + trailingStopTrigger);
+      var thresholdPrice = highestPrice * (1 + trailingStopThreshold);
+      if (highestPrice >= triggerPrice && currentPrice <= thresholdPrice) {
+        history.push("TRAILING STOP! Current price "+currentPrice+" "+quoteAsset+", Threshold "+thresholdPrice+" "+quoteAsset);
 
-        orders.cancelAll();
+        try {
+          orders.cancelAll();
 
-        var sellOrder = sellRemainingQuantityAtMarket();
-        dashboard.setTrailingStopOrderId(sellOrder.id);
-        orders.add(sellOrder);
+          var sellOrder = sellRemainingQuantityAtMarket();
+          dashboard.setTrailingStopOrderId(sellOrder.id);
+          orders.add(sellOrder);
+        } catch (error) {
+          end();
+
+          history.push("ERROR "+error.message);
+          throw error;
+        }
       }
     }
 
@@ -267,7 +284,7 @@ var TradeSession = function(sheet) {
     orders.refresh();
 
     // Check end
-    if (!dashboard.hasEndDate() && self.isFinished()) {
+    if (dashboard.hasStartDate() && !dashboard.hasEndDate() && self.isFinished()) {
       end();
     }
   }

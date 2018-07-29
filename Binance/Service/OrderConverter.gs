@@ -10,15 +10,16 @@ var Binance_Service_OrderConverter = function() {
     if (status === "PARTIALLY_FILLED") {
       status = Exchange_Order_Status_Partial;
     }
-    
+
     return new Exchange_Order(
-      binanceOrder.orderId, 
-      binanceOrder.side, 
-      binanceOrder.type, 
-      price, 
-      baseQuantity, 
-      quoteQuantity, 
+      binanceOrder.orderId,
+      binanceOrder.time,
+      binanceOrder.side,
+      binanceOrder.type,
+      price,
+      baseQuantity,
+      quoteQuantity,
       status
     );
-  }  
+  }
 };

@@ -20,6 +20,7 @@ var TradeSession_Dashboard = function(sheet) {
     received: 'F6',
     remaining: 'H6',
     profit: 'J6',
+    averageSellPrice: 'L6',
 
     ticker: 'F8',
     diffPrice: 'H8',
@@ -31,7 +32,7 @@ var TradeSession_Dashboard = function(sheet) {
     takeProfitOrderId3: 'F12',
     trailingStopOrderId: 'F13',
 
-    ordersRange: 'B18:I26',
+    ordersRange: 'B18:J26',
     historyRange: 'B30:C51'
   };
 
@@ -97,7 +98,16 @@ var TradeSession_Dashboard = function(sheet) {
     setCellValue(cells.profit, quantity);
   };
 
-  this.getBuyPrice = function(price) {
+  this.getAverageSellPrice = function() {
+    return getCellValue(cells.averageSellPrice);
+  };
+  this.setAverageSellPrice = function(price) {
+    setCellValue(cells.averageSellPrice, price);
+  };
+
+
+
+  this.getBuyPrice = function() {
     return getCellValue(cells.buyPrice);
   };
   this.setBuyPrice = function(price) {

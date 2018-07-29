@@ -19,7 +19,7 @@ var Exchange_Order_Statuses = [
   Exchange_Order_Status_Expired
 ];
 
-var Exchange_Order = function(id, side, type, price, baseQuantity, quoteQuantity, status) {
+var Exchange_Order = function(id, time, side, type, price, baseQuantity, quoteQuantity, status) {
   /*
   if (Exchange_Order_Sides.indexOf(side) === -1) {
     throw new Error('Invalid order side: "'+side+'". Accepted values: '+JSON.stringify(Exchange_Order_Sides));
@@ -28,8 +28,9 @@ var Exchange_Order = function(id, side, type, price, baseQuantity, quoteQuantity
     throw new Error('Invalid order status: "'+status+'". Accepted values: '+JSON.stringify(Exchange_Order_Statuses));
   }
   */
-  
+
   this.id = id;
+  this.time = time;
   this.side = side;
   this.type = type;
   this.price = price;
