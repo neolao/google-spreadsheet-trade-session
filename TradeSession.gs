@@ -59,6 +59,20 @@ var TradeSession = function(sheet) {
       throw error;
     }
   };
+  var buyAtLimit = function() {
+    var quoteQuantity = dashboard.getQuoteQuantity();
+    var buyPrice = dashboard.getBuyPrice();
+
+    history.push("Create buy order for " + quoteQuantity + " " + quoteAsset + " at " + buyPrice + " " + quoteAsset + " ...");
+    try {
+      var order = exchange.executeCommand(new Exchange_Command_BuyAtLimitByQuoteQuantity(baseAsset, quoteAsset, quoteQuantity, buyPrice));
+      history.push("Buy order executed: "+order.id+", price "+order.price+", baseQuantity "+order.baseQuantity);
+      return order;
+    } catch (error) {
+      history.push("Fail to buy: " + error.message);
+      throw error;
+    }
+  };
   var sellAtLimit = function(baseQuantity, price) {
     try {
       return exchange.executeCommand(new Exchange_Command_SellAtLimit(baseAsset, quoteAsset, baseQuantity, price));
@@ -80,6 +94,72 @@ var TradeSession = function(sheet) {
       throw error;
     }
   };
+  var isBuyOrderFilled = function() {
+    var buyOrderId = dashboard.getBuyOrderId();
+    if (orders.isFilled(buyOrderId)) {
+      return true;
+    }
+
+    return false;
+  };
+  var areSellOrdersMissing = function() {
+    var expectedOrderCount = dashboard.getTakeProfitCount();
+    var orderCount = 0;
+    if (dashboard.hasTakeProfit1() && dashboard.getTakeProfitOrderId1()) {
+      orderCount++;
+    }
+    if (dashboard.hasTakeProfit2() && dashboard.getTakeProfitOrderId2()) {
+      orderCount++;
+    }
+    if (dashboard.hasTakeProfit3() && dashboard.getTakeProfitOrderId3()) {
+      orderCount++;
+    }
+    if (dashboard.hasTrailingStop() && dashboard.getTrailingStopOrderId()) {
+      orderCount++;
+    }
+    if (orderCount >= expectedOrderCount) {
+      return true;
+    }
+
+    return false;
+  };
+  var createSellOrders = function() {
+    var buyOrder = orders.getById(dashboard.getBuyOrderId());
+    var takeProfitCount = dashboard.getTakeProfitCount();
+    var dividedQuantity = buyOrder.baseQuantity / takeProfitCount;
+    var buyPrice = buyOrder.price;
+
+    // Create take profit order 1
+    var takeProfitPercent1 = dashboard.getTakeProfitPercent1();
+    if (takeProfitPercent1 && !dashboard.getTakeProfitOrderId1()) {
+      var sellOrder1 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent1));
+      dashboard.setTakeProfitOrderId1(sellOrder1.id);
+      orders.add(sellOrder1);
+
+      history.push("Sell order "+(takeProfitPercent1 * 100)+"% executed: "+sellOrder1.id+", price "+sellOrder1.price+", baseQuantity "+sellOrder1.baseQuantity);
+    }
+
+    // Create take profit order 2
+    var takeProfitPercent2 = dashboard.getTakeProfitPercent2();
+    if (takeProfitPercent2 && dashboard.getTakeProfitOrderId2()) {
+      var sellOrder2 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent2));
+      dashboard.setTakeProfitOrderId2(sellOrder2.id);
+      orders.add(sellOrder2);
+
+      history.push("Sell order "+(takeProfitPercent2 * 100)+"% executed: "+sellOrder2.id+", price "+sellOrder2.price+", baseQuantity "+sellOrder2.baseQuantity);
+    }
+
+    // Create take profit order 3
+    var takeProfitPercent3 = dashboard.getTakeProfitPercent3();
+    if (takeProfitPercent3 && dashboard.getTakeProfitOrderId3()) {
+      var sellOrder3 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent3));
+      dashboard.setTakeProfitOrderId3(sellOrder3.id);
+      orders.add(sellOrder3);
+
+      history.push("Sell order "+(takeProfitPercent3 * 100)+"% executed: "+sellOrder3.id+", price "+sellOrder3.price+", baseQuantity "+sellOrder3.baseQuantity);
+    }
+
+  };
 
 
   var dispatchEvent = function(type, event) {
@@ -95,7 +175,6 @@ var TradeSession = function(sheet) {
   }
 
   this.clear = function() {
-    dashboard.setBuyPrice(null);
     dashboard.setHighestPrice(0);
     dashboard.setStartDate(null);
     dashboard.setEndDate(null);
@@ -129,43 +208,20 @@ var TradeSession = function(sheet) {
       return;
     }
 
-
     self.clear();
-    var buyOrder = buyAtMarket();
-    orders.add(buyOrder);
 
-    var takeProfitCount = dashboard.getTakeProfitCount();
-    var dividedQuantity = buyOrder.baseQuantity / takeProfitCount;
-    var buyPrice = buyOrder.price;
-
-    // Create take profit order 1
-    var takeProfitPercent1 = dashboard.getTakeProfitPercent1();
-    if (takeProfitPercent1) {
-      var sellOrder1 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent1));
-      dashboard.setTakeProfitOrderId1(sellOrder1.id);
-      orders.add(sellOrder1);
-
-      history.push("Sell order "+(takeProfitPercent1 * 100)+"% executed: "+sellOrder1.id+", price "+sellOrder1.price+", baseQuantity "+sellOrder1.baseQuantity);
+    if (buyStrategy === 'Market') {
+      var buyOrder = buyAtMarket();
+      orders.add(buyOrder);
+      dashboard.setBuyOrderId(buyOrder.id);
+    } else if (buyStrategy === 'Limit') {
+      var buyOrder = buyAtLimit();
+      orders.add(buyOrder);
+      dashboard.setBuyOrderId(buyOrder.id);
     }
 
-    // Create take profit order 2
-    var takeProfitPercent2 = dashboard.getTakeProfitPercent2();
-    if (takeProfitPercent2) {
-      var sellOrder2 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent2));
-      dashboard.setTakeProfitOrderId2(sellOrder2.id);
-      orders.add(sellOrder2);
-
-      history.push("Sell order "+(takeProfitPercent2 * 100)+"% executed: "+sellOrder2.id+", price "+sellOrder2.price+", baseQuantity "+sellOrder2.baseQuantity);
-    }
-
-    // Create take profit order 3
-    var takeProfitPercent3 = dashboard.getTakeProfitPercent3();
-    if (takeProfitPercent3) {
-      var sellOrder3 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent3));
-      dashboard.setTakeProfitOrderId3(sellOrder3.id);
-      orders.add(sellOrder3);
-
-      history.push("Sell order "+(takeProfitPercent3 * 100)+"% executed: "+sellOrder3.id+", price "+sellOrder3.price+", baseQuantity "+sellOrder3.baseQuantity);
+    if (isBuyOrderFilled()) {
+      createSellOrders();
     }
   };
 
@@ -195,6 +251,11 @@ var TradeSession = function(sheet) {
     }
 
     var expectedFilled = dashboard.getTakeProfitCount();
+    if (expectedFilled == 0) {
+      // Without take profit setup, the session is never finished
+      return false;
+    }
+
     var filledCount = 0;
     if (dashboard.hasTakeProfit1() && orders.isFilled(dashboard.getTakeProfitOrderId1())) {
       filledCount++;
@@ -282,6 +343,11 @@ var TradeSession = function(sheet) {
 
     // Refresh orders
     orders.refresh();
+
+    // Create sell orders
+    if (areSellOrdersMissing() && isBuyOrderFilled()) {
+      createSellOrders();
+    }
 
     // Check end
     if (dashboard.hasStartDate() && !dashboard.hasEndDate() && self.isFinished()) {

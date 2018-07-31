@@ -22,6 +22,9 @@ var TradeSession_Dashboard = function(sheet) {
     profit: 'J6',
     averageSellPrice: 'L6',
 
+    buyOrderId: 'F7',
+    buyStatus: 'H7',
+
     ticker: 'F8',
     diffPrice: 'H8',
     highestPrice: 'J8',
@@ -104,6 +107,15 @@ var TradeSession_Dashboard = function(sheet) {
   this.setAverageSellPrice = function(price) {
     setCellValue(cells.averageSellPrice, price);
   };
+
+
+  this.getBuyOrderId = function() {
+    return getCellValue(cells.buyOrderId);
+  };
+  this.setBuyOrderId = function(orderId) {
+    setCellValue(cells.buyOrderId, orderId);
+  };
+
 
 
 

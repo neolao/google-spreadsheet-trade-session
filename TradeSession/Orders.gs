@@ -109,12 +109,10 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
       return;
     }
 
-    // Get the orders from the oldest order start date
-    var startTime = getOldestStartTime();
-    var refreshedOrders = exchange.executeQuery(new Exchange_Query_GetSymbolOrdersFromDate(baseAsset, quoteAsset, startTime));
+    var orders = getOrdersFromRange();
+    var refreshedOrders = exchange.executeQuery(new Exchange_Query_GetRefreshedOrders(baseAsset, quoteAsset, orders));
 
     // Update orders
-    var orders = getOrdersFromRange();
     for (var index = 0; index < orders.length; index++) {
       for (var refreshedIndex = 0; refreshedIndex < refreshedOrders.length; refreshedIndex++) {
         if (orders[index].id == refreshedOrders[refreshedIndex].id) {
@@ -163,6 +161,7 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
     return received;
   };
 
+  // TODO handle partial filled orders
   this.getRemainingBaseQuantity = function() {
     var orders = getOrdersFromRange();
     var remainingQuantity = 0;

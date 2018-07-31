@@ -1,4 +1,4 @@
-var Binance_CommandHandler_BuyAtMarketByQuoteQuantity = function(apiKey, apiSecret, fee) {
+var Binance_CommandHandler_BuyAtLimitByQuoteQuantity = function(apiKey, apiSecret, fee) {
   var symbolDefinitionFetcher = new Binance_Service_SymbolDefinitionFetcher();
   var priceFetcher = new Binance_Service_PriceFetcher();
   var quantityComputer = new Binance_Service_QuantityComputer();
@@ -7,9 +7,9 @@ var Binance_CommandHandler_BuyAtMarketByQuoteQuantity = function(apiKey, apiSecr
   this.handle = function(command) {
     var symbol = command.baseAsset + command.quoteAsset;
     var definition = symbolDefinitionFetcher.fetch(symbol);
-    var lastPrice = priceFetcher.fetch(symbol);
-    var buyQuantity = quantityComputer.computeMaxBaseQuantityByQuoteQuantity(definition, command.quantity, lastPrice, fee);
+    var price = command.price;
+    var buyQuantity = quantityComputer.computeMaxBaseQuantityByQuoteQuantity(definition, command.quantity, price, fee);
 
-    return orderCreator.createBuyMarket(symbol, buyQuantity);
+    return orderCreator.createBuyLimit(symbol, buyQuantity, price);
   };
 }

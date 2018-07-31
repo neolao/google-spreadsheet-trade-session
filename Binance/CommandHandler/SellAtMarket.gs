@@ -15,15 +15,16 @@ var Binance_CommandHandler_SellAtMarket = function(apiKey, apiSecret, fee) {
     } catch (error) {
       var message = error.message;
 
+      // Filter failure: LOT_SIZE (code -1013)
       if (error.fileName == -2010) {
         for (var retry = 0; retry < 10; retry++) {
           try {
             sellQuantity = quantityComputer.decreaseBaseQuantityStep(definition, sellQuantity, 2);
-            return orderCreator.createSellLimit(symbol, sellQuantity);
+            return orderCreator.createSellMarket(symbol, sellQuantity);
           } catch (retryError) {
             message += "\n"+retryError.message;
             if (retryError.fileName != -2010) {
-              throw new Error(message, retryError.filename);
+              throw new Error(message, retryError.fileName);
             }
           }
         }

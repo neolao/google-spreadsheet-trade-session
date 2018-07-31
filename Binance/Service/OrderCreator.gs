@@ -16,7 +16,27 @@ var Binance_Service_OrderCreator = function(apiKey, apiSecret) {
       var binanceOrder = api.requestPrivate("post", "/api/v3/order", parameters);
       return converter.convert(binanceOrder);
     } catch (error) {
-      throw new Error(error.message+" (code "+error.filename+") "+JSON.stringify(parameters), error.filename);
+      throw new Error(error.message+" (code "+error.fileName+") "+JSON.stringify(parameters), error.fileName);
+    }
+  };
+
+  this.createBuyLimit = function(symbol, quantity, price) {
+    var parameters = {
+      symbol: symbol,
+      side: "BUY",
+      type: "LIMIT",
+      timeInForce: "GTC",
+      quantity: String(quantity),
+      price: price,
+      newOrderRespType: "FULL",
+      timestamp: (new Date()).getTime()
+    };
+
+    try {
+      var binanceOrder = api.requestPrivate("post", "/api/v3/order", parameters);
+      return converter.convert(binanceOrder);
+    } catch (error) {
+      throw new Error(error.message+" (code "+error.fileName+") "+JSON.stringify(parameters), error.fileName);
     }
   };
 
@@ -34,7 +54,7 @@ var Binance_Service_OrderCreator = function(apiKey, apiSecret) {
       var binanceOrder = api.requestPrivate("post", "/api/v3/order", parameters);
       return converter.convert(binanceOrder);
     } catch (error) {
-      throw new Error(error.message+" (code "+error.filename+") "+JSON.stringify(parameters), error.filename);
+      throw new Error(error.message+" (code "+error.fileName+") "+JSON.stringify(parameters), error.fileName);
     }
   };
 
@@ -53,7 +73,7 @@ var Binance_Service_OrderCreator = function(apiKey, apiSecret) {
       var binanceOrder = api.requestPrivate("post", "/api/v3/order", parameters);
       return converter.convert(binanceOrder);
     } catch (error) {
-      throw new Error(error.message+" (code "+error.filename+") "+JSON.stringify(parameters), error.filename);
+      throw new Error(error.message+" (code "+error.fileName+") "+JSON.stringify(parameters), error.fileName);
     }
   };
 };

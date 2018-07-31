@@ -9,6 +9,11 @@ var Binance = function(apiKey, apiSecret) {
       return handler.handle(command);
     }
 
+    if (command instanceof Exchange_Command_BuyAtLimitByQuoteQuantity) {
+      handler = new Binance_CommandHandler_BuyAtLimitByQuoteQuantity(apiKey, apiSecret, fee);
+      return handler.handle(command);
+    }
+
     if (command instanceof Exchange_Command_SellAtMarketByQuoteQuantity) {
       handler = new Binance_CommandHandler_SellAtMarketByQuoteQuantity(apiKey, apiSecret, fee);
       return handler.handle(command);
@@ -45,6 +50,11 @@ var Binance = function(apiKey, apiSecret) {
 
     if (query instanceof Exchange_Query_GetSymbolOrdersFromDate) {
       handler = new Binance_QueryHandler_GetSymbolOrdersFromDate(apiKey, apiSecret);
+      return handler.handle(query);
+    }
+
+    if (query instanceof Exchange_Query_GetRefreshedOrders) {
+      handler = new Binance_QueryHandler_GetRefreshedOrders(apiKey, apiSecret);
       return handler.handle(query);
     }
 

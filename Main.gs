@@ -2,18 +2,21 @@ var EVENT_STARTED = 'STARTED';
 var EVENT_ENDED = 'ENDED';
 
 /**
- * Executed when the Spreadsheet is open 
+ * Executed when the Spreadsheet is open
  */
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
-  
+
   // Sub menu "Settings"
   var settings = ui.createMenu('Settings');
   settings.addItem('Install scheduler', 'TradeSession.installScheduler');
   settings.addSeparator();
   settings.addItem('Update Binance API key', 'TradeSession.updateBinanceSettings');
   settings.addItem('Display Binance API key', 'TradeSession.displayBinanceSettings');
-  
+  settings.addSeparator();
+  settings.addItem('Update Kucoin API key', 'TradeSession.updateKucoinSettings');
+  settings.addItem('Display Kucoin API key', 'TradeSession.displayKucoinSettings');
+
   // Add menu
   ui
     .createMenu('Trade sessions')
@@ -31,7 +34,7 @@ function newSession(sheet) {
 
 function isTriggerRefreshAllInstalled() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   var triggers = ScriptApp.getUserTriggers(spreadsheet);
   for (var index = 0; index < triggers.length; index++) {
     var handlerFunction = triggers[index].getHandlerFunction();
@@ -39,21 +42,21 @@ function isTriggerRefreshAllInstalled() {
       return true;
     }
   }
-  
+
   return false;
 }
 
 function installScheduler() {
   var ui = SpreadsheetApp.getUi();
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   if (!isTriggerRefreshAllInstalled()) {
     ScriptApp.newTrigger('refreshAll')
       .timeBased()
       .everyMinutes(1)
       .create();
   }
-  
+
   ui.alert('The scheduler is installed', ui.ButtonSet.OK);
   //spreadsheet.toast('Scheduler installed', 'Trade Session', 10);
 }
@@ -61,7 +64,7 @@ function installScheduler() {
 function onSessionEnded(event) {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var logs = spreadsheet.getSheetByName('Session logs');
-  
+
   var startDate = event.startDate;
   var endDate = event.endDate;
   var baseAsset = event.baseAsset;
