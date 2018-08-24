@@ -17,6 +17,8 @@ var Binance_CommandHandler_SellAtLimit = function(apiKey, apiSecret, fee) {
 
       // Filter failure: PRICE_FILTER
 
+      // {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}
+      //
       // Precision is over the maximum defined for this asset
       // {"symbol":"XRPUSDT","side":"SELL","type":"LIMIT","timeInForce":"GTC","quantity":"33.4","price":"0.44899000000000006","newOrderRespType":"FULL","timestamp":1532691483813}
 
@@ -27,7 +29,7 @@ var Binance_CommandHandler_SellAtLimit = function(apiKey, apiSecret, fee) {
         for (var retry = 0; retry < 10; retry++) {
           try {
             sellQuantity = quantityComputer.decreaseBaseQuantityStep(definition, sellQuantity, 2);
-            return orderCreator.createSellLimit(symbol, sellQuantity);
+            return orderCreator.createSellLimit(symbol, sellQuantity, sellPrice);
           } catch (retryError) {
             message += "\n"+retryError.message;
             if (retryError.fileName != -2010) {
@@ -37,7 +39,7 @@ var Binance_CommandHandler_SellAtLimit = function(apiKey, apiSecret, fee) {
         }
       }
 
-      throw error;
+      throw new Error(error.message + " Definition: "+JSON.stringify(definition), error.fileName);
     }
   };
 }

@@ -19,6 +19,7 @@ var Binance_QueryHandler_GetRefreshedOrders = function(apiKey, apiSecret) {
     var cacheKey = "binance-symbol-orders-" + symbol + "-" + startTime;
     var cachedJson = cache.get(cacheKey);
     if (cachedJson != null) {
+      //console.log({message: "Use cached orders "+symbol, cachedJson: chachedJson});
       return JSON.parse(cachedJson);
     }
 
@@ -27,6 +28,7 @@ var Binance_QueryHandler_GetRefreshedOrders = function(apiKey, apiSecret) {
       startTime: startTime,
       timestamp: (new Date()).getTime()
     });
+    //console.log({message: "Binance orders", orders: binanceOrders});
 
     var orders = [];
     for (var index = 0; index < binanceOrders.length; index++) {
@@ -45,19 +47,18 @@ var Binance_QueryHandler_GetRefreshedOrders = function(apiKey, apiSecret) {
     var startTime = getOldestStartTime(orders);
 
     var fetchedOrders = fetchOrdersFromDate(symbol, startTime);
+    //console.log({message: "Compare orders and fetched orders "+symbol, orders: orders, fetchedOrders: fetchedOrders});
     var refreshedOrders = [];
     for (var index = 0; index < orders.length; index++) {
       var order = orders[index];
-      var refreshedOrder = order;
       for (var fetchedIndex = 0; fetchedIndex < fetchedOrders.length; fetchedIndex++) {
-        var fetchedOrder = fetchedOrders[index];
+        var fetchedOrder = fetchedOrders[fetchedIndex];
 
         if (fetchedOrder.id == order.id) {
-          refreshedOrder = fetchedOrder;
+          refreshedOrders.push(fetchedOrder);
           break;
         }
       }
-      refreshedOrders.push(refreshedOrder);
     }
 
     return refreshedOrders;

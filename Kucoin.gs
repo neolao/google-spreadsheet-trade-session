@@ -1,4 +1,8 @@
 var Kucoin = function(apiKey, apiSecret) {
+
+  this.executeCommand = function(command) {
+  };
+
   this.executeQuery = function(query) {
     var handler;
 

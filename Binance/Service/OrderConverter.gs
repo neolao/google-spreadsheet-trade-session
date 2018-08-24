@@ -11,9 +11,16 @@ var Binance_Service_OrderConverter = function() {
       status = Exchange_Order_Status_Partial;
     }
 
+    var time = (new Date()).getTime();
+    if (binanceOrder.time) {
+      time = binanceOrder.time;
+    } else if (binanceOrder.transactTime) {
+      time = binanceOrder.transactTime;
+    }
+
     return new Exchange_Order(
       binanceOrder.orderId,
-      binanceOrder.time,
+      time,
       binanceOrder.side,
       binanceOrder.type,
       price,

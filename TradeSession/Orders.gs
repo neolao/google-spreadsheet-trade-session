@@ -9,7 +9,10 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
 
   var denormalizeOrder = function(normalizedOrder) {
     var id = normalizedOrder[0];
-    var time = (new Date(normalizedOrder[1])).getTime();
+    var time = (new Date()).getTime();
+    if (normalizedOrder[1]) {
+      time = (new Date(normalizedOrder[1])).getTime();
+    }
     var side = normalizedOrder[3];
     var type = normalizedOrder[4];
     var price = normalizedOrder[5];
@@ -53,6 +56,7 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
         orders.push(denormalizeOrder(normalizedOrders[index]));
       } catch (error) {
         // Unable to denormalize
+        console.log({message: "Unable to denormalize order", normalized: normalizedOrders[index], errorMessage: error.message});
       }
     }
     return orders;
@@ -101,16 +105,22 @@ var TradeSession_Orders = function(range, exchange, baseAsset, quoteAsset) {
         return true;
       }
     }
+    return false;
   };
 
   this.refresh = function() {
     // Do not refresh if there is no open orders
     if (!self.hasOpenOrders()) {
+      //console.log({message: "No refresh, there is no open orders", initialData: getOrdersFromRange()});
       return;
     }
 
     var orders = getOrdersFromRange();
+    //console.log({message: "Refresh orders "+baseAsset+"/"+quoteAsset, initialData: orders});
+    //console.time("Refresh orders");
     var refreshedOrders = exchange.executeQuery(new Exchange_Query_GetRefreshedOrders(baseAsset, quoteAsset, orders));
+    console.log({message: "Refreshed orders "+baseAsset+"/"+quoteAsset, orders: orders, refreshedOrders: refreshedOrders});
+    //console.timeEnd("Refresh orders");
 
     // Update orders
     for (var index = 0; index < orders.length; index++) {

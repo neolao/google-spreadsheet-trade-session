@@ -5,6 +5,11 @@ var Binance_Service_QuantityComputer = function() {
   var floorByPrecision = function(quantity, precision) {
     return Math.floor(quantity * Math.pow(10, precision)) / Math.pow(10, precision);
   };
+  var floorBySize = function(value, size) {
+    var rounded = Math.floor(value / size) * size;
+    var precision = -Math.floor(Math.log(size)/Math.log(10));
+    return Number(Number(rounded).toFixed(precision));
+  };
   var getStepSize = function(definition) {
     var stepSize = 0.001;
     if (Array.isArray(definition.filters)) {
@@ -23,7 +28,7 @@ var Binance_Service_QuantityComputer = function() {
 
   this.computeMaxBaseQuantityByQuoteQuantity = function(definition, quoteQuantity, price, fee) {
     var stepSize = getStepSize(definition);
-    var basePrecision = getBasePrecision(definition);
+    var basePrecision = getBasePrecision(definition) - 1;
 
     var baseQuantity = 0;
     var quoteSpent = 0;
@@ -39,13 +44,13 @@ var Binance_Service_QuantityComputer = function() {
 
     var extra = baseQuantity % stepSize;
     baseQuantity = baseQuantity - extra;
-    baseQuantity = floorByPrecision(baseQuantity, basePrecision);
+    baseQuantity = floorBySize(baseQuantity, stepSize);
     return baseQuantity;
   };
 
   this.computeMaxBaseQuantity = function(definition, baseQuantity, price, fee) {
     var stepSize = getStepSize(definition);
-    var basePrecision = getBasePrecision(definition);
+    var basePrecision = getBasePrecision(definition) - 1;
 
     var maxQuantity = 0;
     while (maxQuantity < baseQuantity) {
@@ -59,13 +64,13 @@ var Binance_Service_QuantityComputer = function() {
 
     var extra = maxQuantity % stepSize;
     maxQuantity = maxQuantity - extra;
-    maxQuantity = floorByPrecision(maxQuantity, basePrecision);
+    maxQuantity = floorBySize(maxQuantity, stepSize);
     return maxQuantity;
   };
 
   this.decreaseBaseQuantityStep = function(definition, quantity, stepCount) {
     var stepSize = getStepSize(definition);
-    var basePrecision = getBasePrecision(definition);
+    var basePrecision = getBasePrecision(definition) - 1;
 
     var normalized = Number(quantity);
     for (var index = 0; index < stepCount; index++) {
@@ -74,7 +79,7 @@ var Binance_Service_QuantityComputer = function() {
 
     var extra = normalized % stepSize;
     normalized = normalized - extra;
-    normalized = floorByPrecision(normalized, basePrecision);
+    normalized = floorBySize(normalized, stepSize);
 
     return normalized;
   };

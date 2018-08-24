@@ -44,8 +44,6 @@ var TradeSession = function(sheet) {
   };
 
   var buyAtMarket = function() {
-    var startDate = start();
-    var startDateString = (new TradeSession_DateFormatter(startDate)).formatLong();
     var quoteQuantity = dashboard.getQuoteQuantity();
 
     history.push("Start buying " + quoteQuantity + " " + quoteAsset + " ...");
@@ -117,7 +115,7 @@ var TradeSession = function(sheet) {
     if (dashboard.hasTrailingStop() && dashboard.getTrailingStopOrderId()) {
       orderCount++;
     }
-    if (orderCount >= expectedOrderCount) {
+    if (orderCount < expectedOrderCount) {
       return true;
     }
 
@@ -141,7 +139,7 @@ var TradeSession = function(sheet) {
 
     // Create take profit order 2
     var takeProfitPercent2 = dashboard.getTakeProfitPercent2();
-    if (takeProfitPercent2 && dashboard.getTakeProfitOrderId2()) {
+    if (takeProfitPercent2 && !dashboard.getTakeProfitOrderId2()) {
       var sellOrder2 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent2));
       dashboard.setTakeProfitOrderId2(sellOrder2.id);
       orders.add(sellOrder2);
@@ -151,7 +149,7 @@ var TradeSession = function(sheet) {
 
     // Create take profit order 3
     var takeProfitPercent3 = dashboard.getTakeProfitPercent3();
-    if (takeProfitPercent3 && dashboard.getTakeProfitOrderId3()) {
+    if (takeProfitPercent3 && !dashboard.getTakeProfitOrderId3()) {
       var sellOrder3 = sellAtLimit(dividedQuantity, buyPrice * (1 + takeProfitPercent3));
       dashboard.setTakeProfitOrderId3(sellOrder3.id);
       orders.add(sellOrder3);
@@ -159,6 +157,9 @@ var TradeSession = function(sheet) {
       history.push("Sell order "+(takeProfitPercent3 * 100)+"% executed: "+sellOrder3.id+", price "+sellOrder3.price+", baseQuantity "+sellOrder3.baseQuantity);
     }
 
+    start();
+    //var startDate = start();
+    //var startDateString = (new TradeSession_DateFormatter(startDate)).formatLong();
   };
 
 
@@ -175,6 +176,7 @@ var TradeSession = function(sheet) {
   }
 
   this.clear = function() {
+    dashboard.setBuyOrderId(null);
     dashboard.setHighestPrice(0);
     dashboard.setStartDate(null);
     dashboard.setEndDate(null);
@@ -293,7 +295,10 @@ var TradeSession = function(sheet) {
     // Update quote spent and remaining quote quantity
     dashboard.setQuoteReceived(orders.getQuoteReceived());
     dashboard.setRemainingBaseQuantity(orders.getRemainingBaseQuantity());
-    dashboard.setAverageSellPrice(orders.getAverageSellPrice());
+    var averageSellPrice = orders.getAverageSellPrice();
+    if (averageSellPrice > 0) {
+      dashboard.setAverageSellPrice(averageSellPrice);
+    }
 
     // Check stop loss
     if (!isFinished && dashboard.hasStopLoss()) {
