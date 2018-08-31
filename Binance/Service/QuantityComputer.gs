@@ -6,8 +6,12 @@ var Binance_Service_QuantityComputer = function() {
     return Math.floor(quantity * Math.pow(10, precision)) / Math.pow(10, precision);
   };
   var floorBySize = function(value, size) {
-    var currentPrecision = String(value).split(".")[1].length;
-    var rounded = Math.floor(value / size) * size;
+    var splittedValue = String(value).split(".");
+    var currentPrecision = 8;
+    if (splittedValue.length == 2) {
+      currentPrecision = splittedValue[1].length;
+    }
+    var rounded = Math.round(value / size) * size;
     var precision = -Math.floor(Math.log(size)/Math.log(10));
     if (currentPrecision < precision) {
       precision = currentPrecision;
