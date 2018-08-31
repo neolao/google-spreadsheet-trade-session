@@ -7,8 +7,12 @@ var Binance_Service_PriceNormalizer = function() {
     return Math.floor(price * Math.pow(10, precision)) / Math.pow(10, precision);
   };
   var floorBySize = function(value, size) {
+    var currentPrecision = String(value).split(".")[1].length;
     var rounded = Math.floor(value / size) * size;
     var precision = -Math.floor(Math.log(size)/Math.log(10));
+    if (currentPrecision < precision) {
+      precision = currentPrecision;
+    }
     return Number(rounded).toFixed(precision);
   };
 

@@ -37,7 +37,7 @@ var Binance_Service_OrderCreator = function(apiKey, apiSecret) {
       type: "LIMIT",
       timeInForce: "GTC",
       quantity: String(quantity),
-      price: normalizeNumber(price),
+      price: price,
       newOrderRespType: "FULL",
       timestamp: (new Date()).getTime()
     };
@@ -77,7 +77,7 @@ var Binance_Service_OrderCreator = function(apiKey, apiSecret) {
       type: "LIMIT",
       timeInForce: "GTC",
       quantity: String(quantity),
-      price: normalizeNumber(price),
+      price: price,
       newOrderRespType: "FULL",
       timestamp: (new Date()).getTime()
     };

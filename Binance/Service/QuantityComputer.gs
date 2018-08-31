@@ -6,9 +6,13 @@ var Binance_Service_QuantityComputer = function() {
     return Math.floor(quantity * Math.pow(10, precision)) / Math.pow(10, precision);
   };
   var floorBySize = function(value, size) {
+    var currentPrecision = String(value).split(".")[1].length;
     var rounded = Math.floor(value / size) * size;
     var precision = -Math.floor(Math.log(size)/Math.log(10));
-    return Number(Number(rounded).toFixed(precision));
+    if (currentPrecision < precision) {
+      precision = currentPrecision;
+    }
+    return Number(rounded).toFixed(precision);
   };
   var getStepSize = function(definition) {
     var stepSize = 0.001;
