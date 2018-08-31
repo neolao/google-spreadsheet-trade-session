@@ -6,6 +6,17 @@ var Binance_Service_PriceNormalizer = function() {
   var floorByPrecision = function(price, precision) {
     return Math.floor(price * Math.pow(10, precision)) / Math.pow(10, precision);
   };
+
+  var modulo = function(value, size) {
+    var splittedValue = String(value).split(".");
+    var currentPrecision = 8;
+    if (splittedValue.length == 2) {
+      currentPrecision = splittedValue[1].length;
+    }
+    var power = Math.pow(10, currentPrecision);
+    return ((value * power) % (size * power)) / power;
+  }
+
   var floorBySize = function(value, size) {
     var splittedValue = String(value).split(".");
     var currentPrecision = 8;
@@ -41,7 +52,7 @@ var Binance_Service_PriceNormalizer = function() {
     }
 
     var normalized = Number(price);
-    var extra = normalized % tickSize;
+    var extra = modulo(normalized, tickSize);
     normalized = normalized - extra;
 
     // Bug fix Javascript precision

@@ -5,6 +5,19 @@ var Binance_Service_QuantityComputer = function() {
   var floorByPrecision = function(quantity, precision) {
     return Math.floor(quantity * Math.pow(10, precision)) / Math.pow(10, precision);
   };
+
+
+  var modulo = function(value, size) {
+    var splittedValue = String(value).split(".");
+    var currentPrecision = 8;
+    if (splittedValue.length == 2) {
+      currentPrecision = splittedValue[1].length;
+    }
+    var power = Math.pow(10, currentPrecision);
+    return ((value * power) % (size * power)) / power;
+  }
+
+
   var floorBySize = function(value, size) {
     var splittedValue = String(value).split(".");
     var currentPrecision = 8;
@@ -50,7 +63,7 @@ var Binance_Service_QuantityComputer = function() {
       baseQuantity = applyFee(baseQuantity, fee);
     }
 
-    var extra = baseQuantity % stepSize;
+    var extra = modulo(baseQuantity, stepSize);
     baseQuantity = baseQuantity - extra;
     baseQuantity = floorBySize(baseQuantity, stepSize);
     return baseQuantity;
@@ -70,7 +83,7 @@ var Binance_Service_QuantityComputer = function() {
       maxQuantity = applyFee(maxQuantity, fee);
     }
 
-    var extra = maxQuantity % stepSize;
+    var extra = modulo(maxQuantity, stepSize);
     maxQuantity = maxQuantity - extra;
     maxQuantity = floorBySize(maxQuantity, stepSize);
     return maxQuantity;
@@ -85,7 +98,7 @@ var Binance_Service_QuantityComputer = function() {
       normalized = normalized - stepSize;
     }
 
-    var extra = normalized % stepSize;
+    var extra = modulo(normalized, stepSize);
     normalized = normalized - extra;
     normalized = floorBySize(normalized, stepSize);
 
